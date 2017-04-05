@@ -45,7 +45,8 @@ router.route('/cms/auth').post((req, res) => {
 
 		Account.findOneAndUpdate(
 			{
-				_id: account._id
+				username: username,
+				password: password
 			},
 			{
 				$set:
