@@ -43,105 +43,105 @@ router.route('/cms/auth').post((req, res) => {
 		var username = req.body.username;
 		var password = hash(req.body.password);
 
-		Account.findOneAndUpdate(
-			{
-				username: username,
-				password: password
-			},
-			{
-				$set:
-				{
-					token: getToken()
-				}
-			},
-			{
-				upsert: true
-			},
-			(err, data) => {
-				if (!err) {
-					Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
-						if (!err) {
-							return res.send(msgRep.msgData(true, msg.msg_success, user));
-						} else {
-							return res.send(msgRep.msgFailedOut(false, err));
-						}
-					})
-				} else {
-					return res.send(msgRep.msgFailedOut(false, err));
-				}
-			});
-
-		// //check exist [username]
-		// Account.findOne({ username: username }).populate('role')
-		// 	.exec((err, account) => {
+		// Account.findOneAndUpdate(
+		// 	{
+		// 		username: username,
+		// 		password: password
+		// 	},
+		// 	{
+		// 		$set:
+		// 		{
+		// 			token: getToken()
+		// 		}
+		// 	},
+		// 	{
+		// 		upsert: true
+		// 	},
+		// 	(err, data) => {
 		// 		if (!err) {
-		// 			//not exist [username]
-
-		// 			if (account === null) {
-		// 				return res.json({
-		// 					status: false,
-		// 					message: msg.msg_username_notExist
-		// 				});
-		// 			}
-
-		// 			//exist [username]
-		// 			else {
-		// 				if (account.status === false) {
-		// 					return res.json({
-		// 						status: false,
-		// 						message: 'Your account has been deleted'
-		// 					})
-		// 				}
-
-		// 				//check [role]
-		// 				if (account.role.backend === true) {
-
-		// 					//check valid [password] 
-		// 					//valid
-		// 					if (password == account.password) {
-
-		// 						Account.findOneAndUpdate(
-		// 							{
-		// 								_id: account._id
-		// 							},
-		// 							{
-		// 								$set:
-		// 								{
-		// 									token: getToken()
-		// 								}
-		// 							},
-		// 							{
-		// 								upsert: true
-		// 							},
-		// 							(err, data) => {
-		// 								if (!err) {
-		// 									Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
-		// 										if (!err) {
-		// 											return res.send(msgRep.msgData(true, msg.msg_success, user));
-		// 										} else {
-		// 											return res.send(msgRep.msgFailedOut(false, err));
-		// 										}
-		// 									})
-		// 								} else {
-		// 									return res.send(msgRep.msgFailedOut(false, err));
-		// 								}
-		// 							});
-		// 					}
-
-		// 					//invalid
-		// 					else {
-		// 						return res.send(msgRep.msgFailedOut(false, msg.msg_password_invalid));
-		// 					}
+		// 			Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
+		// 				if (!err) {
+		// 					return res.send(msgRep.msgData(true, msg.msg_success, user));
 		// 				} else {
-		// 					return res.status(403).json({
-		// 						status: false
-		// 					});
+		// 					return res.send(msgRep.msgFailedOut(false, err));
 		// 				}
-		// 			}
+		// 			})
 		// 		} else {
 		// 			return res.send(msgRep.msgFailedOut(false, err));
 		// 		}
 		// 	});
+
+		//check exist [username]
+		Account.findOne({ username: username }).populate('role')
+			.exec((err, account) => {
+				if (!err) {
+					//not exist [username]
+
+					if (account === null) {
+						return res.json({
+							status: false,
+							message: msg.msg_username_notExist
+						});
+					}
+
+					//exist [username]
+					else {
+						if (account.status === false) {
+							return res.json({
+								status: false,
+								message: 'Your account has been deleted'
+							})
+						}
+
+						//check [role]
+						if (account.role.backend === true) {
+
+							//check valid [password] 
+							//valid
+							if (password == account.password) {
+
+								Account.findOneAndUpdate(
+									{
+										_id: account._id
+									},
+									{
+										$set:
+										{
+											token: getToken()
+										}
+									},
+									{
+										upsert: true
+									},
+									(err, data) => {
+										if (!err) {
+											Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
+												if (!err) {
+													return res.send(msgRep.msgData(true, msg.msg_success, user));
+												} else {
+													return res.send(msgRep.msgFailedOut(false, err));
+												}
+											})
+										} else {
+											return res.send(msgRep.msgFailedOut(false, err));
+										}
+									});
+							}
+
+							//invalid
+							else {
+								return res.send(msgRep.msgFailedOut(false, msg.msg_password_invalid));
+							}
+						} else {
+							return res.status(403).json({
+								status: false
+							});
+						}
+					}
+				} else {
+					return res.send(msgRep.msgFailedOut(false, err));
+				}
+			});
 	} catch (error) {
 		return res.send(msgRep.msgFailedOut(false, err));
 	}
