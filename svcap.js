@@ -64,6 +64,10 @@ app.use('/teacher', require('./routes/teacher.router'));
 app.use('/cms', require('./routes/cms.router'));
 
 // HOST
-app.listen(6969, function () {
+// app.listen(6969, function () {
+//     console.log('listening on 6969 <3')
+// });
+
+app.listen(process.env.PORT || 6969, function () {
     console.log('listening on 6969 <3')
 });
