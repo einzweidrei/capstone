@@ -86,7 +86,7 @@ router.route('/getById').get((req, res) => {
         var id = req.query.id;
         if (!id) id = "";
 
-        var selectQuery = "_id info";
+        var selectQuery = "_id info createAt updateAt";
         CMS.findOne({ _id: id, status: true }).select(selectQuery).exec((error, data) => {
             if (error) return res.status(500).send(msgRep.msgData(false, error));
             return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
