@@ -63,7 +63,7 @@ router.route('/getAll').get((req, res) => {
 
         // create options
         var options = {
-            select: '_id info.title info.type info.priority createAt updateAt',
+            select: '_id info createAt updateAt',
             sort: { createAt: -1 },
             // populate: [{ path: 'role', select: "_id name" }],
             page: page,
