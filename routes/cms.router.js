@@ -53,7 +53,7 @@ router.route('/getAll').get((req, res) => {
         }
 
         if (!page) page = 1;
-        if (title) query['info.title'] = title;
+        if (title) query['info.title'] = new RegExp(title, 'i');
         if (type) query['info.type'] = type;
         if (priority) query['info.priority'] = priority;
         if (timeStart || timeEnd) {

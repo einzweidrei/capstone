@@ -12,6 +12,8 @@ var validate = new validationService.Validation();
 var msg = messageService.Message;
 var msgRep = new messageService.Message();
 
+var ObjectId = require('mongoose').Types.ObjectId;
+
 router.use(function (req, res, next) {
     console.log('class_router is connecting');
     next();
@@ -20,15 +22,17 @@ router.use(function (req, res, next) {
 //GET -- Get All
 router.route('/getAll').get((req, res) => {
     try {
-        var page = req.query.page;
+        var page = req.query.page || 1;
+
+        var className = req.query.name;
+        var room = req.query.room;
 
         //create query
         var query = { status: true };
 
-        var populateQuery = [
-
-        ]
-
+        if (className) query['info.name'] = new RegExp(className, 'i');
+        if (room) query['info.room'] = new RegExp(room, 'i');
+    
         // create options
         var options = {
             select: '_id info',
@@ -79,21 +83,98 @@ router.route('/getById').get((req, res) => {
     }
 })
 
+router.route('/getAttendanceById').get((req, res) => {
+    try {
+        var classId = req.query.classId || [];
+        var attendanceId = req.query.attendanceId || [];
+
+        Class
+            .aggregate([
+                {
+                    $unwind: { path: "$attendances", preserveNullAndEmptyArrays: true }
+                },
+                {
+                    $match:
+                    {
+                        _id: new ObjectId(classId),
+                        'attendances._id': new ObjectId(attendanceId)
+                    }
+                },
+                {
+                    $project:
+                    {
+                        _id: 1,
+                        attendances: 1,
+                        students: 1
+                    }
+                }
+            ])
+            .exec((err, data) => {
+                if (err) {
+                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                }
+                else {
+                    if (validate.isEmpty(data)) {
+                        return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                    } else {
+                        Student.populate(data, { path: 'students.student attendances.students.student', select: '_id info' }, (err, populateData) => {
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success, populateData[0]));
+                        })
+                    }
+                }
+            })
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, error));
+    }
+});
+
+//PUT
+router.route('/updateAttendance').put((req, res) => {
+    try {
+        var classId = req.body.classId || [];
+        var attendanceId = req.body.attendanceId || [];
+
+        var studentNumber = req.body.studentNumber;
+        var date = req.body.date;
+        var students = req.body.students;
+
+        var updateAt = time.getCurrentTime();
+
+        Class.findOne(
+            {
+                _id: classId
+            }
+        ).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            }
+            else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, "Data is empty"));
+                } else {
+                    data.attendances.id(attendanceId).date = date;
+                    data.attendances.id(attendanceId).students = students;
+                    data.attendances.id(attendanceId).studentNumber = studentNumber;
+                    data.updateAt = updateAt;
+                    data.save();
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
 //POST -- Create
 router.route('/create').post((req, res) => {
     try {
         var classRoom = new Class();
         classRoom.info.name = req.body.name;
-
-        classRoom.students = req.body.students;
-        classRoom.teachers = req.body.teachers;
-
         classRoom.info.time = req.body.time;
         classRoom.info.room = req.body.room;
-
-        classRoom.info.studentNumber = req.body.students.length;
-        classRoom.info.teacherNumber = req.body.teachers.length;
-
+        classRoom.info.studentNumber = 0;
+        classRoom.info.teacherNumber = 0;
         classRoom.info.course = req.body.course;
         classRoom.info.progress = req.body.progress;
         classRoom.createAt = time.getCurrentTime();
@@ -104,6 +185,112 @@ router.route('/create').post((req, res) => {
             if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
             return res.status(200).send(msgRep.msgData(true, msg.msg_success, classRoom));
         })
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+//PUT
+router.route('/update').put((req, res) => {
+    try {
+        var classId = req.body.id || [];
+        var name = req.body.name || [];
+        var room = req.body.room || [];
+        var course = req.body.course || [];
+        var timeClass = req.body.time || [];
+        var progress = req.body.progress || [];
+
+        var updateAt = time.getCurrentTime();
+
+        Class.findOne(
+            {
+                _id: classId,
+                status: true
+            }
+        ).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+            }
+            else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, "Data is empty"));
+                } else {
+                    Class.findOneAndUpdate(
+                        {
+                            _id: classId,
+                            status: true
+                        },
+                        {
+                            $set:
+                            {
+                                'info.name': name,
+                                'info.room': room,
+                                'info.course': course,
+                                'info.time': timeClass,
+                                'info.progress': progress,
+                                updateAt: updateAt
+                            }
+                        },
+                        (error, data) => {
+                            if (error) {
+                                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            }
+                            else {
+                                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                            }
+                        }
+                    )
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+//PUT
+router.route('/delete').put((req, res) => {
+    try {
+        var classId = req.body.id || [];
+        var updateAt = time.getCurrentTime();
+
+        Class.findOne(
+            {
+                _id: classId,
+                status: true
+            }
+        ).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+            }
+            else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, "Data is empty"));
+                } else {
+                    Class.findOneAndUpdate(
+                        {
+                            _id: classId,
+                            status: true
+                        },
+                        {
+                            $set:
+                            {
+                                status: false,
+                                updateAt: updateAt
+                            }
+                        },
+                        (error, data) => {
+                            if (error) {
+                                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            }
+                            else {
+                                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                            }
+                        }
+                    )
+                }
+            }
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
@@ -365,7 +552,7 @@ router.route('/deleteTeacher').put((req, res) => {
 });
 
 //PUT
-router.route('/updateAttendance').put((req, res) => {
+router.route('/addAttendance').put((req, res) => {
     try {
         var classRoom = new Class();
         var classId = req.body.id;
