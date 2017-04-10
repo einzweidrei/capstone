@@ -1,8 +1,8 @@
 var Message = (function () {
     //[<>]
-    Message.msg_success = "Success";
-    Message.msg_failed = "Failed";
-    Message.msg_required = "Required";
+    Message.msg_success = "SUCCESS";
+    Message.msg_failed = "FAILED";
+    Message.msg_required = "REQUIRED";
     Message.msg_data_not_exist = "DATA_NOT_EXIST";
 
     //[Username]

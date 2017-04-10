@@ -73,18 +73,24 @@ router.route('/getAll').get((req, res) => {
 })
 
 //GET -- Get Role by ID
-// /getRolebyId?id=
 router.route('/getById').get((req, res) => {
     try {
         var id = req.query.id;
-        Student.findOne({ _id: id, status: true }).exec((err, data) => {
-            if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
-            return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
-        })
+        Student.findOne({ _id: id, status: true })
+            .populate({
+                path: 'classes.class',
+                select: "_id info.name info.room info.progress info.course",
+                populate: {
+                    path: 'info.course',
+                    select: 'info.name'
+                }
+            }).exec((err, data) => {
+                if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+            })
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, error));
     }
-
 })
 
 //POST -- Create Student
@@ -101,7 +107,7 @@ router.route('/create').post((req, res) => {
         student.info.governmentId = req.body.governmentId;
         student.createAt = time.getCurrentTime();
         student.updateAt = time.getCurrentTime();
-        student.status = true;  
+        student.status = true;
 
         student.save((err) => {
             if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));

@@ -8,9 +8,9 @@ var router = express.Router();
 // var SessionStore = require("session-mongoose")(express);
 
 // connecting mongodb
-// var mongodburi = 'mongodb://localhost:27017/Capstone';
-var mongodburi = 'mongodb://capstone:Anhcanem123@ds139198.mlab.com:39198/hailyuko';
-// mongoose.Promise = global.Promise;
+var mongodburi = 'mongodb://localhost:27017/Capstone';
+// var mongodburi = 'mongodb://capstone:Anhcanem123@ds139198.mlab.com:39198/hailyuko';
+mongoose.Promise = global.Promise;
 mongoose.connect(mongodburi);
 
 // session

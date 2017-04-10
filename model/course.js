@@ -6,20 +6,20 @@ var ObjectId = Schema.ObjectId;
 var CourseSchema = new Schema({
     info: {
         name: { type: String },
-        time: {
-            startAt: {
-                year: { type: Number },
-                month: { type: Number },
-                day: { type: Number }
-            },
-            endAt: {
-                year: { type: Number },
-                month: { type: Number },
-                day: { type: Number }
-            },
-        },
+        tuitionFees: { type: Number },
+        routerLink: { type: String },
+        summary: { type: String },
+        content: { type: String }
     },
     createAt: {
+        year: { type: Number },
+        month: { type: Number },
+        day: { type: Number },
+        hour: { type: Number },
+        minute: { type: Number },
+        second: { type: Number }
+    },
+    updateAt: {
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
