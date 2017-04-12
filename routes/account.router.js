@@ -43,34 +43,6 @@ router.route('/cms/auth').post((req, res) => {
 		var username = req.body.username;
 		var password = hash(req.body.password);
 
-		// Account.findOneAndUpdate(
-		// 	{
-		// 		username: username,
-		// 		password: password
-		// 	},
-		// 	{
-		// 		$set:
-		// 		{
-		// 			token: getToken()
-		// 		}
-		// 	},
-		// 	{
-		// 		upsert: true
-		// 	},
-		// 	(err, data) => {
-		// 		if (!err) {
-		// 			Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
-		// 				if (!err) {
-		// 					return res.send(msgRep.msgData(true, msg.msg_success, user));
-		// 				} else {
-		// 					return res.send(msgRep.msgFailedOut(false, err));
-		// 				}
-		// 			})
-		// 		} else {
-		// 			return res.send(msgRep.msgFailedOut(false, err));
-		// 		}
-		// 	});
-
 		//check exist [username]
 		Account.findOne({ username: username }).populate('role')
 			.exec((err, account) => {
