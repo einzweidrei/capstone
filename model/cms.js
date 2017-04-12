@@ -14,6 +14,7 @@ var CMSSchema = new Schema({
         content: { type: String },
     },
     createAt: {
+        timestamp: { type: String },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -22,6 +23,7 @@ var CMSSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
+        timestamp: { type: String },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },

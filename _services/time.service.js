@@ -11,12 +11,13 @@ var Time = (function () {
         var month = today.getMonth() + 1;
         var year = today.getFullYear();
         return {
-            'second': second,
-            'minute': minute,
-            'hour': hour,
-            'day': day,
-            'month': month,
-            'year': year
+            timestamp: today,
+            second: second,
+            minute: minute,
+            hour: hour,
+            day: day,
+            month: month,
+            year: year
         }
     }
 
@@ -29,12 +30,13 @@ var Time = (function () {
         var month = today.getMonth() + 1;
         var year = today.getFullYear();
         return {
-            'second': second,
-            'minute': minute,
-            'hour': hour,
-            'day': day,
-            'month': month,
-            'year': year
+            timestamp: today,
+            second: second,
+            minute: minute,
+            hour: hour,
+            day: day,
+            month: month,
+            year: year
         }
     }
 

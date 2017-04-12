@@ -69,7 +69,25 @@ var AccountSchema = new Schema({
 	},
 	token: {
 		type: String
-	}
+	},
+	createAt: {
+		timestamp: { type: String },
+		year: { type: Number },
+		month: { type: Number },
+		day: { type: Number },
+		hour: { type: Number },
+		minute: { type: Number },
+		second: { type: Number }
+	},
+	updateAt: {
+		timestamp: { type: String },
+		year: { type: Number },
+		month: { type: Number },
+		day: { type: Number },
+		hour: { type: Number },
+		minute: { type: Number },
+		second: { type: Number }
+	},
 });
 
 //plugin Pagination

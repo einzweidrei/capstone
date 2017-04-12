@@ -32,7 +32,7 @@ router.route('/getAll').get((req, res) => {
 
         if (className) query['info.name'] = new RegExp(className, 'i');
         if (room) query['info.room'] = new RegExp(room, 'i');
-    
+
         // create options
         var options = {
             select: '_id info',
@@ -82,6 +82,32 @@ router.route('/getById').get((req, res) => {
         return res.status(500).send(msgRep.msgData(false, error));
     }
 })
+
+router.route('/getClasses').get((req, res) => {
+    try {
+        var course = req.query.course || [];
+        var progress = req.query.progress || [];
+
+        var query = { 'info.course': course, 'info.progress': progress };
+        var selectQuery = '_id info';
+        var populateQuery = [
+            { path: 'info.course', select: '_id info' },
+        ];
+        Class.find(query).select(selectQuery).populate(populateQuery).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                }
+            }
+        })
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
 
 router.route('/getAttendanceById').get((req, res) => {
     try {
@@ -177,6 +203,7 @@ router.route('/create').post((req, res) => {
         classRoom.info.teacherNumber = 0;
         classRoom.info.course = req.body.course;
         classRoom.info.progress = req.body.progress;
+        classRoom.info.startAt = req.body.startAt;
         classRoom.createAt = time.getCurrentTime();
         classRoom.updateAt = time.getCurrentTime();
         classRoom.status = true;
@@ -197,6 +224,7 @@ router.route('/update').put((req, res) => {
         var name = req.body.name || [];
         var room = req.body.room || [];
         var course = req.body.course || [];
+        var startAt = req.body.startAt || [];
         var timeClass = req.body.time || [];
         var progress = req.body.progress || [];
 
@@ -228,6 +256,7 @@ router.route('/update').put((req, res) => {
                                 'info.course': course,
                                 'info.time': timeClass,
                                 'info.progress': progress,
+                                'info.startAt': startAt,
                                 updateAt: updateAt
                             }
                         },
@@ -297,7 +326,7 @@ router.route('/delete').put((req, res) => {
 });
 
 //PUT
-router.route('/updateStudentInClass').put((req, res) => {
+router.route('/updateStudent').put((req, res) => {
     try {
         var classRoom = new Class();
         var classId = req.body.classId;

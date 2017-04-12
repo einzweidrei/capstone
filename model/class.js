@@ -17,7 +17,7 @@ var ClassSchema = new Schema({
     ],
     attendances: [
         {
-            studentNumber: { type: Number},
+            studentNumber: { type: Number },
             date: {
                 year: { type: Number },
                 month: { type: Number },
@@ -48,6 +48,14 @@ var ClassSchema = new Schema({
                 },
             }
         ],
+        startAt: {
+            year: { type: Number },
+            month: { type: Number },
+            day: { type: Number },
+        },
+        branch: {
+
+        },
         studentNumber: { type: Number },
         teacherNumber: { type: Number },
         room: { type: String },
@@ -55,6 +63,7 @@ var ClassSchema = new Schema({
         course: { type: ObjectId, ref: 'Course' }
     },
     createAt: {
+        timestamp: { type: String },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -63,6 +72,7 @@ var ClassSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
+        timestamp: { type: String },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },

@@ -64,7 +64,9 @@ router.route('/getAll').get((req, res) => {
         // create options
         var options = {
             select: '_id info createAt updateAt',
-            sort: { createAt: -1 },
+            sort: {
+                'createAt.timestamp': -1
+            },
             // populate: [{ path: 'role', select: "_id name" }],
             page: page,
             limit: 10
