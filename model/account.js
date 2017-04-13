@@ -61,7 +61,7 @@ var AccountSchema = new Schema({
 	},
 	role: {
 		type: ObjectId,
-		required: [true, msg.msg_required],
+		// required: [true, msg.msg_required],
 		ref: 'Role'
 	},
 	status: {
@@ -69,6 +69,26 @@ var AccountSchema = new Schema({
 	},
 	token: {
 		type: String
+	},
+	session: {
+		loginAt: {
+			timestamp: { type: String },
+			year: { type: Number },
+			month: { type: Number },
+			day: { type: Number },
+			hour: { type: Number },
+			minute: { type: Number },
+			second: { type: Number }
+		},
+		logoutAt: {
+			timestamp: { type: String },
+			year: { type: Number },
+			month: { type: Number },
+			day: { type: Number },
+			hour: { type: Number },
+			minute: { type: Number },
+			second: { type: Number }
+		},
 	},
 	createAt: {
 		timestamp: { type: String },
