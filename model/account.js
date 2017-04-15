@@ -79,16 +79,7 @@ var AccountSchema = new Schema({
 			hour: { type: Number },
 			minute: { type: Number },
 			second: { type: Number }
-		},
-		logoutAt: {
-			timestamp: { type: String },
-			year: { type: Number },
-			month: { type: Number },
-			day: { type: Number },
-			hour: { type: Number },
-			minute: { type: Number },
-			second: { type: Number }
-		},
+		}
 	},
 	createAt: {
 		timestamp: { type: String },
