@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var CMS = require('../model/cms');
+var Comment = require('../model/comment');
 var Account = require('../model/account');
 var Student = require('../model/student');
 var Topic = require('../model/topic');
@@ -100,6 +101,35 @@ router.route('/getById').get((req, res) => {
     }
 });
 
+router.route('/getComment').get((req, res) => {
+    try {
+        var id = req.query.id;
+        var page = req.query.page;
+        var limit = req.query.limit;
+
+        if (!page) page = 1;
+        if (!limit) limit = 10;
+
+        page = page - 1;
+        var skip = page * limit;
+
+        Topic.findOne({ _id: id }, { comments: { $slice: [skip, limit] } }, (error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                }
+            }
+        });
+    }
+    catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
 //POST -- Create
 router.route('/create').post((req, res) => {
     try {
@@ -107,52 +137,77 @@ router.route('/create').post((req, res) => {
         topic.info.title = req.body.title;
         topic.info.type = req.body.type;
         topic.info.priority = req.body.priority;
-        topic.info.content = req.body.content;
         topic.info.author = req.body.author;
+        topic.info.process = "PENDING";
+
+        var comment = {
+            author: req.body.author,
+            content: req.body.content,
+            createAt: time.getCurrentTime(),
+            updateAt: time.getCurrentTime(),
+            status: true
+        };
+
+        topic.comments.push(comment);
         topic.createAt = time.getCurrentTime();
         topic.updateAt = time.getCurrentTime();
         topic.status = true;
 
-        topic.save((err) => {
-            if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
-            return res.status(200).send(msgRep.msgData(true, msg.msg_success, topic));
-        })
+        var comment = new Comment();
+        comment.info.content = req.body.content;
+        comment.info.author = req.body.author;
+        comment.createAt = time.getCurrentTime();
+        comment.updateAt = time.getCurrentTime();
+        comment.status = true;
+
+        Account.findOne({ _id: req.body.author }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_account_notExist));
+                } else {
+                    topic.save((err) => {
+                        if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                        return res.status(200).send(msgRep.msgData(true, msg.msg_success, topic));
+                    })
+                }
+            }
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
 });
 
-//PUT -- Update
-router.route('/update').put((req, res) => {
+//PUT -- Comment
+router.route('/comment').put((req, res) => {
     try {
-        var id = req.body.id;
-        var cms = new CMS();
-        cms.info.title = req.body.title;
-        cms.info.type = req.body.type;
-        cms.info.priority = req.body.priority;
-        cms.info.summary = req.body.summary;
-        cms.info.imgUrl = req.body.imgUrl;
-        cms.info.routerLink = req.body.routerLink;
-        cms.info.content = req.body.content;
-        cms.updateAt = time.getCurrentTime();
+        var id = req.query.id;
 
-        CMS.findOneAndUpdate(
+        var comment = {
+            author: req.body.author,
+            content: req.body.content,
+            createAt: time.getCurrentTime(),
+            updateAt: time.getCurrentTime(),
+            status: true
+        };
+
+        Topic.findOneAndUpdate(
             {
                 _id: id,
                 status: true
             },
             {
-                $set:
+                $push:
                 {
-                    info: cms.info,
-                    updateAt: cms.updateAt
+                    comments: comment
                 }
             },
             {
                 upsert: true
             },
             (error, data) => {
-                if (error) return res.status(500).send(msgRep.msgData(false, error));
+                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                 return res.status(200).send(msgRep.msgData(true, msg.msg_success));
             });
     } catch (error) {

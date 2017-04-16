@@ -64,6 +64,64 @@ var AccountSchema = new Schema({
 		// required: [true, msg.msg_required],
 		ref: 'Role'
 	},
+	roleTest: {
+		name: {
+			// required: [true, msg.msg_required],
+			type: String
+		},
+		backend_func: [
+			{
+				name: {
+					type: String,
+					// required: [true, msg.msg_required]
+				},
+				read: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				create: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				update: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				delete: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				}
+			}
+		],
+		frontend_func: [
+			{
+				name: {
+					type: String,
+					// required: [true, msg.msg_required]
+				},
+				read: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				create: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				update: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				},
+				delete: {
+					type: Boolean,
+					// required: [true, msg.msg_required]
+				}
+			}
+		],
+		backend: {
+			// required: [true, msg.msg_required],
+			type: Boolean
+		},
+	},
 	status: {
 		type: Boolean
 	},

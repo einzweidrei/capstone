@@ -32,7 +32,6 @@ router.route('/getAll').get((req, res) => {
 })
 
 //GET -- Get Role by ID
-// /getRolebyId?id=
 router.route('/getRolebyId').get((req, res) => {
     var roleId = req.query.id;
     Role.findOne({ _id: roleId, status: true }).exec((err, roles) => {
@@ -57,25 +56,31 @@ router.route('/getPerm').post((req, res) => {
     Account.findOne({ _id: accountId }).exec((err, account) => {
         if (!err) {
             if (account !== null) {
-                Role
-                    .findOne({ _id: account.role })
-                    .select('backend backend_func')
-                    .populate([{ path: 'backend_func', select: "read create update delete" }]).exec((err, data) => {
-                        if (!err) {
-                            if (data !== null) {
-                                for (var i = 0; i < data.backend_func.length; i++) {
-                                    if (data.backend_func[i].name === permName) {
-                                        var result = { backend: data.backend, data: data.backend_func[i], status: true, message: msg.msg_success };
-                                        return res.send(result);
-                                    }
-                                }
-                            } else {
-                                //data null
-                            }
-                        } else {
-                            return res.send(msgRep.msgFailedOut(false, err));
-                        }
-                    })
+                for (var i = 0; i < account.roleTest.backend_func.length; i++) {
+                    if (account.roleTest.backend_func[i].name === permName) {
+                        var result = { backend: account.roleTest.backend, data: account.roleTest.backend_func[i], status: true, message: msg.msg_success };
+                        return res.send(result);
+                    }
+                }
+                // Role
+                //     .findOne({ _id: account.role })
+                //     .select('backend backend_func')
+                //     .populate([{ path: 'backend_func', select: "read create update delete" }]).exec((err, data) => {
+                //         if (!err) {
+                //             if (data !== null) {
+                //                 for (var i = 0; i < data.backend_func.length; i++) {
+                //                     if (data.backend_func[i].name === permName) {
+                //                         var result = { backend: data.backend, data: data.backend_func[i], status: true, message: msg.msg_success };
+                //                         return res.send(result);
+                //                     }
+                //                 }
+                //             } else {
+                //                 //data null
+                //             }
+                //         } else {
+                //             return res.send(msgRep.msgFailedOut(false, err));
+                //         }
+                //     })
             } else {
                 return res.send(msgRep.msgFailedOut(false, msg.msg_account_notExist));
             }

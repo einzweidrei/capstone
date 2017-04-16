@@ -24,7 +24,7 @@ var Message = (function () {
     Message.msg_role_invalid = "Invalid Role";
 
     //[Account]
-    Message.msg_account_notExist = "Account is not exists";
+    Message.msg_account_notExist = "ACCOUNT_NOT_EXIST";
 
     //[Course]
     Message.msg_course_exist = "Course already exists";

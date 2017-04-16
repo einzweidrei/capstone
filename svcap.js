@@ -8,8 +8,8 @@ var router = express.Router();
 // var SessionStore = require("session-mongoose")(express);
 
 // connecting mongodb
-// var mongodburi = 'mongodb://localhost:27017/Capstone';
-var mongodburi = 'mongodb://capstone:Anhcanem123@ds139198.mlab.com:39198/hailyuko';
+var mongodburi = 'mongodb://localhost:27017/Capstone';
+// var mongodburi = 'mongodb://capstone:Anhcanem123@ds139198.mlab.com:39198/hailyuko';
 mongoose.Promise = global.Promise;
 mongoose.connect(mongodburi);
 
@@ -62,6 +62,7 @@ app.use('/student', require('./routes/student.router'));
 app.use('/course', require('./routes/course.router'));
 app.use('/teacher', require('./routes/teacher.router'));
 app.use('/cms', require('./routes/cms.router'));
+app.use('/topic', require('./routes/topic.router'));
 
 // HOST
 // app.listen(6969, function () {

@@ -8,12 +8,40 @@ var TopicSchema = new Schema({
         title: { type: String },
         type: { type: String },
         priority: { type: String },
-        content: { type: String },
         author: {
             type: ObjectId,
             ref: 'Account'
-        }
+        },
+        comments: { type: Number }
     },
+    comments: [
+        {
+            author: {
+                type: ObjectId,
+                ref: 'Account'
+            },
+            content: { type: String },
+            createAt: {
+                timestamp: { type: String },
+                year: { type: Number },
+                month: { type: Number },
+                day: { type: Number },
+                hour: { type: Number },
+                minute: { type: Number },
+                second: { type: Number }
+            },
+            updateAt: {
+                timestamp: { type: String },
+                year: { type: Number },
+                month: { type: Number },
+                day: { type: Number },
+                hour: { type: Number },
+                minute: { type: Number },
+                second: { type: Number }
+            },
+            status: { type: Boolean }
+        }
+    ],
     process: { type: String },
     createAt: {
         timestamp: { type: String },

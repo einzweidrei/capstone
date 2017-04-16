@@ -70,7 +70,7 @@ router.route('/cms/auth').post((req, res) => {
 						}
 
 						//check [role]
-						if (account.role.backend === true) {
+						if (account.roleTest.backend === true) {
 
 							//check valid [password] 
 							//valid
@@ -340,7 +340,7 @@ router.route('/cms/create').post((req, res) => {
 	account.createAt = time.getCurrentTime();
 	account.updateAt = time.getCurrentTime();
 
-	//validate 
+	//validate
 	var error = account.validateSync();
 
 	//invalid
@@ -373,8 +373,10 @@ router.route('/cms/create').post((req, res) => {
 		//valid [password]
 		else {
 			//check valid [role]
-			Role.findOne({ _id: account.role }).exec((err, roles) => {
+			Role.findOne({ _id: req.body.role }).exec((err, roles) => {
 				if (!err) {
+
+					console.log(roles);
 
 					//valid [role]
 					if (roles !== null) {
@@ -409,6 +411,11 @@ router.route('/cms/create').post((req, res) => {
 
 											//non-duplicate [email]
 											else {
+												account.roleTest.name = roles.name;
+												account.roleTest.backend_func = roles.backend_func;
+												account.roleTest.frontend_func = roles.frontend_func;
+												account.backend = roles.backend;
+
 												account.save((err) => {
 													if (err) return res.send(err);
 													return res.json({
@@ -511,6 +518,67 @@ router.route('/cms/getAccountbyId').get((req, res) => {
 	});
 });
 
+//PUT -- Update
+router.route('/cms/updateRole').put((req, res) => {
+	var id = req.body.id;
+
+	// var data = new Role();
+	// // data.name = req.body.name;
+	// data.backend_func = req.body.backend_func;
+	// data.frontend_func = req.body.frontend_func;
+	// data.backend = req.body.backend;
+
+	if (!id) {
+		return res.json({
+			status: false,
+			message: msg.msg_failed
+		})
+	}
+
+	// //validate 
+	// var error = data.validateSync();
+
+	// //invalid
+	// if (error) {
+	//     return res.json({
+	//         error: error.errors,
+	//         status: false,
+	//         message: msg.msg_failed
+	//     });
+	// }
+
+	// console.log(id);
+	Account.findOneAndUpdate(
+		{
+			_id: id,
+			status: true
+		},
+		{
+			$set:
+			{
+				'roleTest.frontend_func': req.body.frontend_func,
+				'roleTest.backend_func': req.body.backend_func,
+				'roleTest.backend': req.body.backend
+			}
+		},
+		{
+			upsert: true
+		},
+		(err, data) => {
+			if (!err) {
+				res.json({
+					status: true,
+					message: msg.msg_success
+				});
+			} else {
+				return res.json({
+					status: false,
+					message: msg.msg_failed
+				})
+			}
+		});
+});
+
 //PUT
 router.route('/cms/update').put((req, res) => {
 	var id = req.body.id;
@@ -597,8 +665,8 @@ router.route('/cms/update').put((req, res) => {
 							});
 						}
 					});
-				} 
-				
+				}
+
 				// duplicated [Email]
 				else {
 					Role.findOne({ _id: role }).exec((err, roles) => {
