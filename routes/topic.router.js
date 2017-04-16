@@ -120,7 +120,9 @@ router.route('/getComment').get((req, res) => {
                 if (validate.isEmpty(data)) {
                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                 } else {
-                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                    Account.populate(data, { path: 'comments.author', select: '_id info' }, (err, populateData) => {
+                        return res.status(200).send(msgRep.msgData(true, msg.msg_success, populateData));
+                    });
                 }
             }
         });
@@ -179,10 +181,10 @@ router.route('/create').post((req, res) => {
     }
 });
 
-//PUT -- Comment
-router.route('/comment').put((req, res) => {
+//POST -- Comment
+router.route('/comment').post((req, res) => {
     try {
-        var id = req.query.id;
+        var id = req.body.id;
 
         var comment = {
             author: req.body.author,
