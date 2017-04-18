@@ -44,7 +44,7 @@ var TopicSchema = new Schema({
     ],
     process: { type: String },
     createAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -53,7 +53,7 @@ var TopicSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },

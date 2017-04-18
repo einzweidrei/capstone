@@ -63,7 +63,7 @@ var ClassSchema = new Schema({
         course: { type: ObjectId, ref: 'Course' }
     },
     createAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -72,7 +72,7 @@ var ClassSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },

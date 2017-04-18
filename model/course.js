@@ -12,7 +12,7 @@ var CourseSchema = new Schema({
         content: { type: String }
     },
     createAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -21,7 +21,7 @@ var CourseSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },

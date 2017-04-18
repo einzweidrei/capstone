@@ -16,7 +16,7 @@ var CommentSchema = new Schema({
         }
     },
     createAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
@@ -25,7 +25,7 @@ var CommentSchema = new Schema({
         second: { type: Number }
     },
     updateAt: {
-        timestamp: { type: String },
+        timestamp: { type: Date },
         year: { type: Number },
         month: { type: Number },
         day: { type: Number },
