@@ -144,7 +144,7 @@ router.route('/getComment').get((req, res) => {
 router.route('/create').post((req, res) => {
     try {
         console.log(req.body);
-        
+
         var topic = new Topic();
         topic.info.title = req.body.title;
         topic.info.type = req.body.type;
