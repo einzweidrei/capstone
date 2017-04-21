@@ -130,8 +130,10 @@ router.route('/getComment').get((req, res) => {
                 if (validate.isEmpty(data)) {
                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                 } else {
+                    var number = data.info.comments;
+                    var pages = Math.floor(number / limit) + 1;
                     Account.populate(data, { path: 'comments.author', select: '_id info' }, (err, populateData) => {
-                        return res.status(200).send(msgRep.msgData(true, msg.msg_success, populateData));
+                        return res.status(200).send(msgRep.msgPaginate(true, msg.msg_success, populateData, data.info.comments, limit, page + 1, pages));
                     });
                 }
             }
@@ -145,13 +147,12 @@ router.route('/getComment').get((req, res) => {
 //POST -- Create
 router.route('/create').post((req, res) => {
     try {
-        console.log(req.body);
-
         var topic = new Topic();
         topic.info.title = req.body.title;
         topic.info.type = req.body.type;
         topic.info.priority = req.body.priority;
         topic.info.author = req.body.author;
+        topic.info.comments = 1;
         topic.process = 'PENDING';
 
         var comment = {
@@ -236,31 +237,44 @@ router.route('/comment').post((req, res) => {
             status: true
         };
 
-        Topic.findOne({ _id: id}).exec((error, data) => {
-            if (error) {
+        console.log(comment);
 
+        Topic.findOne({ _id: id }).exec((error, data) => {
+            if (error) {
+                res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
-                if (validate)
-            }
-        })
-        Topic.findOneAndUpdate(
-            {
-                _id: id,
-                status: true
-            },
-            {
-                $push:
-                {
-                    comments: comment
+                if (validate.isEmpty(data)) {
+                    res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    var commentNumber = data.info.comments;
+                    commentNumber++;
+
+                    console.log(commentNumber);
+
+                    Topic.findOneAndUpdate(
+                        {
+                            _id: id,
+                            status: true
+                        },
+                        {
+                            $set: {
+                                'info.comments': commentNumber,
+                            },
+                            $push:
+                            {
+                                comments: comment
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error, data) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        });
                 }
-            },
-            {
-                upsert: true
-            },
-            (error, data) => {
-                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-            });
+            }
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }

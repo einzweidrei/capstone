@@ -27,11 +27,15 @@ var Validation = (function () {
     };
 
     Validation.prototype.isEmpty = (data) => {
-        if (data !== null) {
-            if (data.length === 0) return true;
-            else return false;
+        if (!data) {
+            return true;
+        } else {
+            if (data !== null) {
+                if (data.length === 0) return true;
+                else return false;
+            }
+            return true;
         }
-        return true;
     };
 
     return Validation;

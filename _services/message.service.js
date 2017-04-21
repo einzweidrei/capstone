@@ -49,6 +49,20 @@ var Message = (function () {
         })
     }
 
+    Message.prototype.msgPaginate = (status, msg, data, total, limit, page, pages) => {
+        return JSON.stringify({
+            status: status,
+            message: msg,
+            data: {
+                docs: data,
+                total: total,
+                limit: limit,
+                page: page,
+                pages: pages
+            }
+        })
+    }
+
     return Message;
 }());
 
