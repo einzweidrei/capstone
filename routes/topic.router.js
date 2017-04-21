@@ -236,6 +236,13 @@ router.route('/comment').post((req, res) => {
             status: true
         };
 
+        Topic.findOne({ _id: id}).exec((error, data) => {
+            if (error) {
+
+            } else {
+                if (validate)
+            }
+        })
         Topic.findOneAndUpdate(
             {
                 _id: id,
