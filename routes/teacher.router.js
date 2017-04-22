@@ -34,26 +34,8 @@ router.route('/getAll').get((req, res) => {
         var query = { status: true };
 
         if (!page) page === 1;
-
-        if (checkIsValid(firstName) && checkIsValid(lastName)) {
-            query = {
-                'info.name.firstName': firstName,
-                'info.name.lastName': lastName,
-                status: true
-            }
-        } else {
-            if (checkIsValid(firstName) && !checkIsValid(lastName)) {
-                query = {
-                    'info.name.firstName': firstName,
-                    status: true
-                }
-            } else if (!checkIsValid(firstName) && checkIsValid(lastName)) {
-                query = {
-                    'info.name.lastName': lastName,
-                    status: true
-                }
-            } 
-        }
+        if (firstName) query['info.name.firstName'] = firstName;
+        if (lastName) query['info.name.lastName'] = lastName;
 
         // create options
         var options = {
@@ -83,11 +65,31 @@ router.route('/getCourses').get((req, res) => {
         Course.find({}).select('_id info.name').exec((error, data) => {
             if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
             return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
-        })
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, error));
     }
-})
+});
+
+router.route('/getById').get((req, res) => {
+    try {
+        var id = req.query.id;
+
+        Teacher.findOne({ _id: id }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, error));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, error));
+    }
+});
 
 //POST -- Create
 router.route('/create').post((req, res) => {
@@ -102,6 +104,7 @@ router.route('/create').post((req, res) => {
         teacher.info.phone = req.body.phone;
         teacher.info.governmentId = req.body.governmentId;
         teacher.info.nationality = req.body.nationality;
+        teacher.info.certification = req.body.certification;
         teacher.createAt = time.getCurrentTime();
         teacher.updateAt = time.getCurrentTime();
         teacher.status = true;
@@ -111,14 +114,84 @@ router.route('/create').post((req, res) => {
                 teacher.save((err) => {
                     if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
                     return res.status(200).send(msgRep.msgData(true, msg.msg_success, teacher));
-                })
+                });
             } else {
                 return res.status(200).send(msgRep.msgData(false, msg.msg_teacher_exist));
             }
-        })
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
 });
 
+//PUT -- Update
+router.route('/update').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var teacher = new Teacher();
+        teacher.info.name.firstName = req.body.firstName;
+        teacher.info.name.lastName = req.body.lastName;
+        teacher.info.birthday = req.body.birthday;
+        teacher.info.address.street = req.body.street;
+        teacher.info.address.block = req.body.block;
+        teacher.info.address.district = req.body.district;
+        teacher.info.phone = req.body.phone;
+        teacher.info.governmentId = req.body.governmentId;
+        teacher.info.nationality = req.body.nationality;
+        teacher.info.certification = req.body.certification;
+        teacher.updateAt = time.getCurrentTime();
+
+        Teacher.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $set:
+                {
+                    info: teacher.info,
+                    updateAt: teacher.updateAt
+                }
+            },
+            {
+                upsert: true
+            },
+            (err, data) => {
+                if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+            });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+//PUT -- Delete
+router.route('/delete').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var updateAt = time.getCurrentTime();
+
+        Teacher.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $set:
+                {
+                    updateAt: updateAt,
+                    status: false
+                }
+            },
+            {
+                upsert: true
+            },
+            (error, data) => {
+                if (error) return res.status(500).send(msgRep.msgData(false, error));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
 module.exports = router;

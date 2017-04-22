@@ -21,11 +21,8 @@ var TeacherSchema = new Schema({
         },
         phone: { type: String },
         governmentId: { type: String },
-        nationality: { type: String },
-
-        // thong tin can hoi lai
-        // certificate: { type: String },
-        // experience: { type: String },
+        certification: { type: String },
+        nationality: { type: String }
     },
     classes: [
         {
@@ -34,7 +31,11 @@ var TeacherSchema = new Schema({
     ],
     attendances: [
         {
-
+            date: {
+                year: { type: Number },
+                month: { type: Number },
+                day: { type: Number },
+            }
         }
     ],
     createAt: {

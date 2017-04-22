@@ -57,7 +57,8 @@ var AccountSchema = new Schema({
 				},
 				message: msg.msg_name_invalid
 			}
-		}
+		},
+		image: { type: String }
 	},
 	role: {
 		type: ObjectId,
@@ -139,6 +140,11 @@ var AccountSchema = new Schema({
 			second: { type: Number }
 		}
 	},
+	follow: [
+		{
+			topic: { type: ObjectId, ref: 'Topic' }
+		}
+	],
 	createAt: {
 		timestamp: { type: Date },
 		year: { type: Number },

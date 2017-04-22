@@ -155,7 +155,6 @@ router.route('/update').put((req, res) => {
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
-
 });
 
 module.exports = router;
