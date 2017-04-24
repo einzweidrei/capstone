@@ -19,13 +19,6 @@ router.use(function (req, res, next) {
     next();
 });
 
-function checkIsValid(item) {
-    if (typeof item === 'undefined' || item === null || item === '') {
-        return false;
-    }
-    return true;
-}
-
 //GET -- Get All
 router.route('/getAll').get((req, res) => {
     try {
@@ -36,25 +29,8 @@ router.route('/getAll').get((req, res) => {
         var type = req.query.type;
         var priority = req.query.priority;
         var author = req.query.author;
-        // var timeStart = req.query.timeStart;
-        // var timeEnd = req.query.timeEnd;
-
-        // var day = {};
-        // var month = {};
-        // var year = {};
-
-        // if (timeStart) {
-        //     var timing = time.parseTimetoObject(timeStart);
-        //     day['$gte'] = timing.day;
-        //     month['$gte'] = timing.month;
-        //     year['$gte'] = timing.year;
-        // }
-        // if (timeEnd) {
-        //     var timing = time.parseTimetoObject(timeEnd);
-        //     day['$lte'] = timing.day;
-        //     month['$lte'] = timing.month;
-        //     year['$lte'] = timing.year;
-        // }
+        var timeStart = req.query.timeStart || new Date();
+        var timeEnd = req.query.timeEnd || new Date();
 
         if (!page) page = 1;
         if (title) query['info.title'] = new RegExp(title, 'i');
@@ -62,8 +38,12 @@ router.route('/getAll').get((req, res) => {
         if (priority) query['info.priority'] = priority;
         if (author) query['info.author'] = author;
         // if (timeStart || timeEnd) {
-        //     query['createAt.day'] = day;
-        //     query['createAt.month'] = month;
+        //     var start = time.parseTimetoObject(timeStart);
+        //     var end = time.parseTimetoObject(timeEnd);
+        //     query['createAt.timestamp'] = {
+        //         "$gte": start.timestamp,
+        //         "$lte": end.timestamp
+        //     }
         // }
 
         // create options
@@ -93,7 +73,7 @@ router.route('/getById').get((req, res) => {
         var id = req.query.id;
         if (!id) id = "";
 
-        Topic.findOne({ _id: id }, { comments: { $slice: 1 } }, (error, data) => {
+        Topic.findOne({ _id: id, status: true }, { comments: { $slice: 1 } }, (error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
@@ -123,7 +103,7 @@ router.route('/getComment').get((req, res) => {
         page = page - 1;
         var skip = page * limit;
 
-        Topic.findOne({ _id: id }, { comments: { $slice: [skip, limit] } }, (error, data) => {
+        Topic.findOne({ _id: id, status: true }, { comments: { $slice: [skip, limit] } }, (error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
@@ -273,6 +253,92 @@ router.route('/comment').post((req, res) => {
         });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+//PUT
+router.route('/updateComment').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var commentId = req.body.commentId;
+        var content = req.body.content || "";
+        var updateAt = time.getCurrentTime();
+
+        Topic.findOne({ _id: id, status: true }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    Topic.findOneAndUpdate(
+                        {
+                            _id: id,
+                            'comments._id': commentId,
+                            status: true
+                        },
+                        {
+                            $set:
+                            {
+                                // 'comments.$.author': author,
+                                'comments.$.content': content,
+                                'comments.$.updateAt': updateAt
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error, data) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        });
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+//PUT
+router.route('/deleteComment').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var commentId = req.body.commentId;
+        var updateAt = time.getCurrentTime();
+
+        Topic.findOne({ _id: id, status: true }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    Topic.findOneAndUpdate(
+                        {
+                            _id: id,
+                            'comments._id': commentId,
+                            status: true
+                        },
+                        {
+                            $set:
+                            {
+                                'comments.$.updateAt': updateAt,
+                                'comments.$.status': false
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error, data) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        });
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
 

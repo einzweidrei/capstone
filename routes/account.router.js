@@ -595,7 +595,7 @@ router.route('/cms/update').put((req, res) => {
 		})
 	}
 
-	Account.findOne({ _id: id }).exec((err, acc) => {
+	Account.findOne({ _id: id, status: true }).exec((err, acc) => {
 		if (!err) {
 
 			//not null
@@ -604,7 +604,7 @@ router.route('/cms/update').put((req, res) => {
 				//check duplicate [email]
 				if (email !== acc.info.email) {
 
-					Account.findOne({ 'info.email': email }).exec((err, acc) => {
+					Account.findOne({ 'info.email': email, status: true }).exec((err, acc) => {
 						if (!err) {
 							if (acc !== null) {
 								return res.json({
