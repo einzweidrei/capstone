@@ -91,6 +91,7 @@ router.route('/create').post((req, res) => {
         course.info.routerLink = req.body.routerLink;
         course.info.summary = req.body.summary;
         course.info.content = req.body.content;
+        course.info.image = req.body.image;
         course.createAt = time.getCurrentTime();
         course.updateAt = time.getCurrentTime();
         course.status = true;
@@ -124,6 +125,7 @@ router.route('/update').put((req, res) => {
         course.info.routerLink = req.body.routerLink;
         course.info.summary = req.body.summary;
         course.info.content = req.body.content;
+        course.info.image = req.body.image;
         course.updateAt = time.getCurrentTime();
 
         Course.findOneAndUpdate(

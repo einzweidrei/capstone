@@ -3,14 +3,14 @@ var Schema = mongoose.Schema;
 var mongoosePaginate = require('mongoose-paginate');
 var ObjectId = Schema.ObjectId;
 
-var CourseSchema = new Schema({
+var ContactSchema = new Schema({
     info: {
         name: { type: String },
-        tuitionFees: { type: Number },
-        routerLink: { type: String },
-        summary: { type: String },
-        content: { type: String },
-        image: { type: String }
+        mail: { type: String },
+        message: { type: String },
+        register: [],
+        workType: [],
+        timeType: []
     },
     createAt: {
         timestamp: { type: Date },
@@ -33,6 +33,6 @@ var CourseSchema = new Schema({
     status: { type: Boolean }
 });
 
-CourseSchema.plugin(mongoosePaginate);
+ContactSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model('Course', CourseSchema);
+module.exports = mongoose.model('Contact', ContactSchema);
