@@ -12,6 +12,7 @@ var CMSSchema = new Schema({
         imgUrl: { type: String },
         routerLink: { type: String },
         content: { type: String },
+        status: { type: String }
     },
     createAt: {
         timestamp: { type: Date },

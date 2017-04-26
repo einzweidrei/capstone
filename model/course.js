@@ -10,7 +10,8 @@ var CourseSchema = new Schema({
         routerLink: { type: String },
         summary: { type: String },
         content: { type: String },
-        image: { type: String }
+        imageUrl: { type: String },
+        status: { type: String }
     },
     createAt: {
         timestamp: { type: Date },

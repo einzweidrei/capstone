@@ -17,7 +17,7 @@ router.use(function (req, res, next) {
     next();
 });
 
-//GET -- Get All Students
+//GET
 router.route('/getAll').get((req, res) => {
     try {
         var page = req.query.page;
@@ -30,7 +30,7 @@ router.route('/getAll').get((req, res) => {
 
         // create options
         var options = {
-            select: '_id info.name info.tuitionFees',
+            // select: '_id info.name info.tuitionFees',
             // sort: { date: -1 },
             // populate: [{ path: 'role', select: "_id name" }],
             page: page,
@@ -85,6 +85,8 @@ router.route('/getById').get((req, res) => {
 //POST -- Create Course
 router.route('/create').post((req, res) => {
     try {
+        console.log(req.body);
+
         var course = new Course();
         course.info.name = req.body.name;
         course.info.tuitionFees = req.body.tuitionFees;
@@ -92,6 +94,7 @@ router.route('/create').post((req, res) => {
         course.info.summary = req.body.summary;
         course.info.content = req.body.content;
         course.info.image = req.body.image;
+        course.info.status = req.body.status;
         course.createAt = time.getCurrentTime();
         course.updateAt = time.getCurrentTime();
         course.status = true;
@@ -126,6 +129,7 @@ router.route('/update').put((req, res) => {
         course.info.summary = req.body.summary;
         course.info.content = req.body.content;
         course.info.image = req.body.image;
+        course.info.status = req.body.status;
         course.updateAt = time.getCurrentTime();
 
         Course.findOneAndUpdate(

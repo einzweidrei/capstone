@@ -10,6 +10,8 @@ var msgRep = new messageService.Message();
 var timeService = require('../_services/time.service');
 var time = new timeService.Time();
 
+var nodemailer = require('nodemailer');
+
 // create Account object
 var Account = require('../model/account');
 var Role = require('../model/role');
@@ -764,6 +766,34 @@ router.route('/cms/delete').put((req, res) => {
 				})
 			}
 		});
+});
+
+router.route('/testMail').get((req, res) => {
+	// create reusable transporter object using the default SMTP transport
+	let transporter = nodemailer.createTransport({
+		service: 'gmail',
+		auth: {
+			user: 'tachiyuko124@gmail.com',
+			pass: 'anhcanem'
+		}
+	});
+
+	// setup email data with unicode symbols
+	let mailOptions = {
+		from: '"👑 Yuko-sama của các bạn 👑" <tachiyuko124@gmail.com>', // sender address
+		to: 'einzweidrei2@gmail.com, sangkaka911@gmail.com, hinhbaoxuyen42@gmail.com, thanhphuc1610@gmail.com', // list of receivers
+		subject: 'Test gửi mail cho nhiều người 😘', // Subject line
+		text: 'Test text 😋', // plain text body
+		html: '<b>Test HTML 😋</b>' // html body
+	};
+
+	// send mail with defined transport object
+	transporter.sendMail(mailOptions, (error, info) => {
+		if (error) {
+			return console.log(error);
+		}
+		console.log('Message %s sent: %s', info.messageId, info.response);
+	});
 });
 
 module.exports = router;

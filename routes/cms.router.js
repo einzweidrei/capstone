@@ -109,6 +109,7 @@ router.route('/create').post((req, res) => {
         cms.info.imgUrl = req.body.imgUrl;
         cms.info.routerLink = req.body.routerLink;
         cms.info.content = req.body.content;
+        cms.info.status = req.body.status;
         cms.createAt = time.getCurrentTime();
         cms.updateAt = time.getCurrentTime();
         cms.status = true;
@@ -134,6 +135,7 @@ router.route('/update').put((req, res) => {
         cms.info.imgUrl = req.body.imgUrl;
         cms.info.routerLink = req.body.routerLink;
         cms.info.content = req.body.content;
+        cms.info.status = req.body.status;
         cms.updateAt = time.getCurrentTime();
 
         CMS.findOneAndUpdate(
