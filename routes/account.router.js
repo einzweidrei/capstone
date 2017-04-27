@@ -175,7 +175,7 @@ router.route('/login').post((req, res) => {
 								},
 								(err, data) => {
 									if (!err) {
-										Account.findOne({ _id: account._id }).select('_id username role token info').exec((err, user) => {
+										Account.findOne({ _id: account._id }).select('_id username role roleTest token info').exec((err, user) => {
 											if (!err) {
 												return res.send(msgRep.msgData(true, msg.msg_success, user));
 											} else {
