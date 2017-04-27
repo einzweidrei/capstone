@@ -54,8 +54,7 @@ router.route('/cms/auth').post((req, res) => {
 			.exec((err, account) => {
 				if (!err) {
 					//not exist [username]
-
-					if (account === null) {
+					if (!account) {
 						return res.json({
 							status: false,
 							message: msg.msg_username_notExist
