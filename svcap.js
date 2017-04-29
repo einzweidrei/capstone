@@ -6,7 +6,9 @@ var bodyparser = require('body-parser');
 var mongoose = require('mongoose');
 var router = express.Router();
 var cors = require('cors');
+var SocketServer = require('ws').Server;
 var io = require('socket.io')(http);
+// const path = require('path');
 
 // var SessionStore = require("session-mongoose")(express);
 
@@ -74,11 +76,33 @@ app.use('/topic', require('./routes/topic.router'));
 //     console.log('listening on 6969 <3')
 // });
 
+var PORT = process.env.PORT || 3000;
+// const INDEX = path.join(__dirname, 'index.html');
+
+app.listen(PORT, function () {
+    console.log('listening on 6969 <3')
+});
+
+var wss = new SocketServer({
+    perMessageDeflate: false,
+    port: 6969
+});
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+    ws.on('close', () => console.log('Client disconnected'));
+});
+
+setInterval(() => {
+    wss.clients.forEach((client) => {
+        client.send(new Date().toTimeString());
+    });
+}, 1000);
+
 // io.configure(function () {
 //     io.set("transports", ["xhr-polling"]);
 //     io.set("polling duration", 10);
 // });
-
 
 io.on('connection', function (socket) {
     console.log('a user connected');
@@ -101,8 +125,4 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log('user disconnected');
     });
-});
-
-app.listen(process.env.PORT || 6969, function () {
-    console.log('listening on 6969 <3')
 });
