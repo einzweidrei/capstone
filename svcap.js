@@ -10,6 +10,7 @@ var SocketServer = require('ws').Server;
 var io = require('socket.io')(http);
 // const path = require('path');
 
+
 // var SessionStore = require("session-mongoose")(express);
 
 // connecting mongodb
@@ -84,7 +85,7 @@ app.use('/topic', require('./routes/topic.router'));
 var PORT = process.env.PORT || 3000;
 // const INDEX = path.join(__dirname, 'index.html');
 
-app.listen(PORT, function () {
+http.listen(PORT, function () {
     console.log('listening on 6969 <3')
 });
 
