@@ -1,9 +1,11 @@
 // params
 var express = require('express');
 var app = express();
+var http = require('http').Server(app);
 var bodyparser = require('body-parser');
 var mongoose = require('mongoose');
 var router = express.Router();
+var io = require('socket.io')(http);
 
 // var SessionStore = require("session-mongoose")(express);
 
@@ -68,6 +70,28 @@ app.use('/topic', require('./routes/topic.router'));
 // app.listen(6969, function () {
 //     console.log('listening on 6969 <3')
 // });
+io.on('connection', function (socket) {
+    console.log('a user connected');
+
+    socket.on('subscribe', function (room) {
+        console.log('joining room', room);
+        socket.join(room);
+    })
+
+    socket.on('unsubscribe', function (room) {
+        console.log('leaving room', room);
+        socket.leave(room);
+    })
+
+    socket.on('send', function (data) {
+        console.log('sending message');
+        io.sockets.in(data.room).emit('message', data.message);
+    });
+
+    socket.on('disconnect', function () {
+        console.log('user disconnected');
+    });
+});
 
 app.listen(process.env.PORT || 6969, function () {
     console.log('listening on 6969 <3')

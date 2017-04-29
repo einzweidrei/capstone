@@ -26,6 +26,7 @@
     "node-persist": "0.0.8",
     "nodejs": "0.0.0",
     "nodemailer": "^4.0.1",
-    "session-mongoose": "^0.5.2"
+    "session-mongoose": "^0.5.2",
+    "socket.io": "^1.7.3"
   }
 }
