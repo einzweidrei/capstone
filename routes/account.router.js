@@ -43,6 +43,8 @@ function getToken() {
 //POST -- Authentication
 router.route('/cms/auth').post((req, res) => {
 	try {
+		console.log(req.body);
+
 		//get data in request body
 		var username = req.body.username;
 		var password = hash(req.body.password);
@@ -54,7 +56,7 @@ router.route('/cms/auth').post((req, res) => {
 			.exec((err, account) => {
 				if (!err) {
 					//not exist [username]
-					if (!account) {
+					if (validate.isEmpty(account)) {
 						return res.json({
 							status: false,
 							message: msg.msg_username_notExist
@@ -70,6 +72,7 @@ router.route('/cms/auth').post((req, res) => {
 							})
 						}
 
+						console.log(account);
 						//check [role]
 						if (account.roleTest.backend === true) {
 
@@ -110,7 +113,9 @@ router.route('/cms/auth').post((req, res) => {
 							else {
 								return res.send(msgRep.msgFailedOut(false, msg.msg_password_invalid));
 							}
-						} else {
+						} 
+						
+						else {
 							return res.status(403).json({
 								status: false
 							});
@@ -415,7 +420,7 @@ router.route('/cms/create').post((req, res) => {
 												account.roleTest.name = roles.name;
 												account.roleTest.backend_func = roles.backend_func;
 												account.roleTest.frontend_func = roles.frontend_func;
-												account.backend = roles.backend;
+												account.roleTest.backend = roles.backend;
 
 												account.save((err) => {
 													if (err) return res.send(err);

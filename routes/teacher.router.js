@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var router = express.Router();
 
 var Teacher = require('../model/teacher');
@@ -12,6 +13,8 @@ var time = new timeService.Time();
 var validate = new validationService.Validation();
 var msg = messageService.Message;
 var msgRep = new messageService.Message();
+
+var ObjectId = mongoose.Types.ObjectId;
 
 router.use(function (req, res, next) {
     console.log('class_router is connecting');
@@ -75,7 +78,7 @@ router.route('/getById').get((req, res) => {
     try {
         var id = req.query.id;
 
-        Teacher.findOne({ _id: id }).exec((error, data) => {
+        Teacher.findOne({ _id: id, status: true }).exec((error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, error));
             } else {
@@ -88,6 +91,70 @@ router.route('/getById').get((req, res) => {
         });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, error));
+    }
+});
+
+router.route('/addAttendance').post((req, res) => {
+    try {
+        var id = req.body.id;
+
+        var attendance = {
+            note: req.body.note || "",
+            date: req.body.date,
+            status: true
+        }
+
+        Teacher.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $push: {
+                    attendances: attendance
+                }
+            },
+            {
+                upsert: true
+            },
+            (error) => {
+                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            }
+        )
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/deleteAttendance').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var attendanceId = req.body.attendanceId;
+
+        Teacher.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $pull: {
+                    attendances: {
+                        _id: ObjectId(attendanceId)
+                    }
+                }
+            },
+            {
+                upsert: true
+            },
+            (error) => {
+                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            }
+        )
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
 
