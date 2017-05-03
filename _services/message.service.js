@@ -4,6 +4,7 @@ var Message = (function () {
     Message.msg_failed = "FAILED";
     Message.msg_required = "REQUIRED";
     Message.msg_data_not_exist = "DATA_NOT_EXIST";
+    Message.msg_DUPLICATED = "DUPLICATED";
 
     //[Username]
     Message.msg_username_exist = "Username already exists";

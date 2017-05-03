@@ -317,14 +317,15 @@ router.route('/deleteComment').put((req, res) => {
                     Topic.findOneAndUpdate(
                         {
                             _id: id,
-                            'comments._id': commentId,
+                            // 'comments._id': commentId,
                             status: true
                         },
                         {
-                            $set:
+                            $pull:
                             {
-                                'comments.$.updateAt': updateAt,
-                                'comments.$.status': false
+                                'comments._id': commentId,
+                                // 'comments.$.updateAt': updateAt,
+                                // 'comments.$.status': false
                             }
                         },
                         {

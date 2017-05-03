@@ -74,6 +74,7 @@ app.use('/class', require('./routes/class.router'));
 app.use('/student', require('./routes/student.router'));
 app.use('/course', require('./routes/course.router'));
 app.use('/teacher', require('./routes/teacher.router'));
+app.use('/staff', require('./routes/staff.router'));
 app.use('/cms', require('./routes/cms.router'));
 app.use('/topic', require('./routes/topic.router'));
 
@@ -85,11 +86,7 @@ app.use('/topic', require('./routes/topic.router'));
 // var PORT = process.env.PORT || 3000;
 // const INDEX = path.join(__dirname, 'index.html');
 
-<<<<<<< HEAD
-app.listen(PORT, function () {
-=======
-app.listen(process.env.PORT || 3000, function () {
->>>>>>> origin/master
+app.listen(process.env.PORT || 6969, function () {
     console.log('listening on 6969 <3')
 });
 

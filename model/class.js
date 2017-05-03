@@ -7,7 +7,11 @@ var ClassSchema = new Schema({
     staff: { type: ObjectId },
     students: [
         {
-            student: { type: ObjectId, ref: 'Student' }
+            student: { type: ObjectId, ref: 'Student' },
+            score: {
+                midterm: { type: Number },
+                finalexam: { type: Number }
+            }
         }
     ],
     teachers: [

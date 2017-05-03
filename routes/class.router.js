@@ -93,6 +93,7 @@ router.route('/getClasses').get((req, res) => {
         var populateQuery = [
             { path: 'info.course', select: '_id info' },
         ];
+
         Class.find(query).select(selectQuery).populate(populateQuery).exec((error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
@@ -331,7 +332,14 @@ router.route('/updateStudent').put((req, res) => {
         var classRoom = new Class();
         var classId = req.body.classId;
         var studentId = req.body.studentId;
-        var student = { student: studentId };
+        var student = {
+            student: studentId,
+            score: {
+                midterm: 0,
+                finalexam: 0
+            }
+        };
+
         var updateAt = time.getCurrentTime();
 
         Class.findOne(
@@ -646,6 +654,55 @@ router.route('/deleteAttendance').put((req, res) => {
             })
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+router.route('/updateScore').put((req, res) => {
+    try {
+        var classId = req.body.id;
+        var scoreId = req.body.scoreId;
+        let midterm = req.body.midTerm;
+        let finalexam = req.body.finalExam;
+
+        console.log(req.body);
+
+        // if (midterm instanceof Number && finalexam instanceof Number) {
+        if (midterm >= 0 && finalexam >= 0) {
+            var score = {
+                midterm: midterm,
+                finalexam: finalexam
+            }
+
+            Class.findOneAndUpdate(
+                {
+                    _id: classId,
+                    'students._id': scoreId,
+                    status: true
+                },
+                {
+                    $set: {
+                        'students.$.score': score
+                    }
+                },
+                {
+                    upsert: true
+                },
+                (error) => {
+                    if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                }
+            )
+        }
+        else {
+            console.log('error');
+            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+        }
+        // } else {
+        // console.log('Not Number');
+        // return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+        // }
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
 
