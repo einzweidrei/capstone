@@ -85,7 +85,7 @@ app.use('/topic', require('./routes/topic.router'));
 var PORT = process.env.PORT || 3000;
 // const INDEX = path.join(__dirname, 'index.html');
 
-http.listen(PORT, function () {
+app.listen(PORT, function () {
     console.log('listening on 6969 <3')
 });
 
