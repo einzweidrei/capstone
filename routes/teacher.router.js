@@ -78,7 +78,16 @@ router.route('/getById').get((req, res) => {
     try {
         var id = req.query.id;
 
-        Teacher.findOne({ _id: id, status: true }).exec((error, data) => {
+        Teacher.findOne({ _id: id, status: true }).populate(
+            {
+                path: 'classes.class',
+                select: "_id info.name info.room info.progress info.course",
+                populate: {
+                    path: 'info.course',
+                    select: 'info.name'
+                }
+            }
+        ).exec((error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, error));
             } else {

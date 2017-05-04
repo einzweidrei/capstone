@@ -53,7 +53,7 @@ router.route('/getAll').get((req, res) => {
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
-})
+});
 
 router.route('/getById').get((req, res) => {
     try {

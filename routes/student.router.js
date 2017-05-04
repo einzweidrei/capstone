@@ -157,4 +157,34 @@ router.route('/update').put((req, res) => {
     }
 });
 
+//PUT -- Delete
+router.route('/delete').put((req, res) => {
+    try {
+        let id = req.body.id;
+        let updateAt = time.getCurrentTime();
+
+        Student.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $set:
+                {
+                    status: false,
+                    updateAt: updateAt
+                }
+            },
+            {
+                upsert: true
+            },
+            (err, data) => {
+                if (err) return res.status(500).send(msgRep.msgData(false, msg.msg_failed, err));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+            });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
 module.exports = router;

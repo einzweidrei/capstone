@@ -194,4 +194,67 @@ router.route('/delete').put((req, res) => {
     }
 });
 
+router.route('/addAttendance').post((req, res) => {
+    try {
+        var id = req.body.id;
+
+        var attendance = {
+            note: req.body.note || "",
+            date: req.body.date,
+            status: true
+        }
+
+        Staff.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $push: {
+                    attendances: attendance
+                }
+            },
+            {
+                upsert: true
+            },
+            (error) => {
+                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            }
+        )
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/deleteAttendance').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var attendanceId = req.body.attendanceId;
+
+        Staff.findOneAndUpdate(
+            {
+                _id: id,
+                status: true
+            },
+            {
+                $pull: {
+                    attendances: {
+                        _id: ObjectId(attendanceId)
+                    }
+                }
+            },
+            {
+                upsert: true
+            },
+            (error) => {
+                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            }
+        )
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
 module.exports = router;

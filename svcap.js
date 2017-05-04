@@ -77,6 +77,7 @@ app.use('/teacher', require('./routes/teacher.router'));
 app.use('/staff', require('./routes/staff.router'));
 app.use('/cms', require('./routes/cms.router'));
 app.use('/topic', require('./routes/topic.router'));
+app.use('/contest', require('./routes/contest.router'));
 
 // HOST
 // app.listen(6969, function () {
