@@ -78,6 +78,7 @@ app.use('/staff', require('./routes/staff.router'));
 app.use('/cms', require('./routes/cms.router'));
 app.use('/topic', require('./routes/topic.router'));
 app.use('/contest', require('./routes/contest.router'));
+app.use('/advisory', require('./routes/advisory.router'));
 
 // HOST
 // app.listen(6969, function () {
