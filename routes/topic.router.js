@@ -323,7 +323,7 @@ router.route('/deleteComment').put((req, res) => {
                         {
                             $pull:
                             {
-                                'comments._id': commentId,
+                                'comments.$._id': commentId,
                                 // 'comments.$.updateAt': updateAt,
                                 // 'comments.$.status': false
                             }
