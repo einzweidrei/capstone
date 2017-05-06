@@ -430,7 +430,7 @@ router.route('/follow').post((req, res) => {
                             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
                         });     
                 } else {
-                   return res.status(200).send(msgRep.msgData(false, msg.msg_data_exist));
+                   return res.status(200).send(msgRep.msgData(false, msg.msg_DUPLICATED));
                 }
             }
         });
