@@ -402,24 +402,38 @@ router.route('/follow').post((req, res) => {
 
         var follow = { topic: topicId };
 
-        Account.findOneAndUpdate(
-            {
-                _id: id,
-                status: true
-            },
-            {
-                $push:
-                {
-                    follow: follow
+        Account.findOne({
+            _id: id,
+            status: true,
+            'follow.topic': topicId
+        }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    Account.findOneAndUpdate(
+                        {
+                            _id: id,
+                            status: true
+                        },
+                        {
+                            $push:
+                            {
+                                follow: follow
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error, data) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        });
                 }
-            },
-            {
-                upsert: true
-            },
-            (error, data) => {
-                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-            });
+            }
+        });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
     }
