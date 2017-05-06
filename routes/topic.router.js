@@ -411,9 +411,7 @@ router.route('/follow').post((req, res) => {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
             } else {
                 if (validate.isEmpty(data)) {
-                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
-                } else {
-                    Account.findOneAndUpdate(
+                     Account.findOneAndUpdate(
                         {
                             _id: id,
                             status: true
@@ -430,7 +428,9 @@ router.route('/follow').post((req, res) => {
                         (error, data) => {
                             if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-                        });
+                        });     
+                } else {
+                   return res.status(200).send(msgRep.msgData(false, msg.msg_data_exist));
                 }
             }
         });
