@@ -113,8 +113,8 @@ router.route('/cms/auth').post((req, res) => {
 							else {
 								return res.send(msgRep.msgFailedOut(false, msg.msg_password_invalid));
 							}
-						} 
-						
+						}
+
 						else {
 							return res.status(403).json({
 								status: false
@@ -633,6 +633,9 @@ router.route('/cms/update').put((req, res) => {
 													$set:
 													{
 														role: role,
+														'roleTest.frontend_func': roles.frontend_func,
+														'roleTest.backend_func': roles.backend_func,
+														'roleTest.backend': roles.backend,
 														'info.email': email,
 														'info.name': name,
 														updateAt: updateAt
@@ -688,8 +691,12 @@ router.route('/cms/update').put((req, res) => {
 										$set:
 										{
 											role: role,
+											'roleTest.frontend_func': roles.frontend_func,
+											'roleTest.backend_func': roles.backend_func,
+											'roleTest.backend': roles.backend,
 											'info.email': email,
-											'info.name': name
+											'info.name': name,
+											updateAt: updateAt
 										}
 									},
 									{
