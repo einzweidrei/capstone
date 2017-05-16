@@ -15,6 +15,9 @@ var validate = new validationService.Validation();
 var msg = messageService.Message;
 var msgRep = new messageService.Message();
 
+var mail = require('../_services/mail.service');
+var mailService = new Mail.MailService();
+
 router.use(function (req, res, next) {
     console.log('contest_router is connecting');
     next();
@@ -96,9 +99,13 @@ router.route('/create').post((req, res) => {
         contest.status = true;
 
         contest.save((error) => {
-            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            }
+            else {
+                mailService.sendMail(contest.info.email, res);
+            }
+            // return res.status(200).send(msgRep.msgData(true, msg.msg_success));
         });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
