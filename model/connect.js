@@ -5,15 +5,11 @@ var ObjectId = Schema.ObjectId;
 
 var ConnectSchema = new Schema({
     connect: {
-        account: { type: ObjectId, ref: 'account' },
-        student: { type: ObjectId, ref: 'student' }
+        account: { type: ObjectId, ref: 'Account' },
+        student: { type: ObjectId, ref: 'Student' }
     },
-    createAt: {
-        timestamp: { type: Date }
-    },
-    updateAt: {
-        timestamp: { type: Date }
-    },
+    createAt: { type: Date },
+    updateAt: { type: Date },
     status: { type: Boolean }
 });
 

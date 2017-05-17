@@ -196,8 +196,11 @@ router.route('/connectToAccount').post((req, res) => {
         let id = req.body.id;
         let accountId = req.body.accountId;
 
+        console.log(accountId);
+
         Connect.findOne({ 'connect.student': id }).exec((error, data) => {
             if (error) {
+                console.log(error);
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
                 if (validate.isEmpty(data)) {
@@ -207,9 +210,13 @@ router.route('/connectToAccount').post((req, res) => {
                     }
                     connect.createAt = new Date();
                     connect.updateAt = new Date();
+                    connect.status = true;
+
+                    console.log(connect);
 
                     connect.save((error) => {
                         if (error) {
+                            console.log(error);
                             return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                         } else {
                             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
@@ -221,6 +228,7 @@ router.route('/connectToAccount').post((req, res) => {
             }
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
@@ -229,10 +237,32 @@ router.route('/getAccountByUsername').get((req, res) => {
     try {
         let username = req.query.username;
 
-        Account.findOne({ username: username }).select('username info').exec((error, data) => {
+        Account.findOne({ username: username, status: true }).select('username info').exec((error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/getConnectAccount').get((req, res) => {
+    try {
+        let id = req.query.id;
+        console.log(id);
+
+        Connect.findOne({ 'connect.student': id, status: true }).populate({ path: 'connect.account', select: 'username info' }).select('connect').exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                console.log(data);
                 if (validate.isEmpty(data)) {
                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                 } else {
