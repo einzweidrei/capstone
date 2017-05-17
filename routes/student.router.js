@@ -2,9 +2,12 @@ var express = require('express');
 var router = express.Router();
 
 var Student = require('../model/student');
+var Account = require('../model/account');
 var validationService = require('../_services/validation.service');
 var messageService = require('../_services/message.service');
 var timeService = require('../_services/time.service');
+
+var Connect = require('../model/connect');
 var time = new timeService.Time();
 var validate = new validationService.Validation();
 var msg = messageService.Message;
@@ -184,6 +187,61 @@ router.route('/delete').put((req, res) => {
             });
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+router.route('/connectToAccount').post((req, res) => {
+    try {
+        let connect = new Connect();
+        let id = req.body.id;
+        let accountId = req.body.accountId;
+
+        Connect.findOne({ 'connect.student': id }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    connect.connect = {
+                        account: accountId,
+                        student: id
+                    }
+                    connect.createAt = new Date();
+                    connect.updateAt = new Date();
+
+                    connect.save((error) => {
+                        if (error) {
+                            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                        } else {
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        }
+                    });
+                } else {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_DUPLICATED));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/getAccountByUsername').get((req, res) => {
+    try {
+        let username = req.query.username;
+
+        Account.findOne({ username: username }).select('username info').exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    return res.status(200).send(msgRep.msgData(true, msg.msg_success, data));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
 

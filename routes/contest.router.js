@@ -16,7 +16,7 @@ var msg = messageService.Message;
 var msgRep = new messageService.Message();
 
 var mail = require('../_services/mail.service');
-var mailService = new Mail.MailService();
+var mailService = new mail.MailService();
 
 router.use(function (req, res, next) {
     console.log('contest_router is connecting');

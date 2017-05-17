@@ -14,6 +14,8 @@ var validate = new validationService.Validation();
 var msg = messageService.Message;
 var msgRep = new messageService.Message();
 
+var ObjectId = require('mongoose').Types.ObjectId;
+
 router.use(function (req, res, next) {
     console.log('topic_router is connecting');
     next();
@@ -307,6 +309,8 @@ router.route('/deleteComment').put((req, res) => {
         var commentId = req.body.commentId;
         var updateAt = time.getCurrentTime();
 
+        console.log(id + '/' + commentId);
+
         Topic.findOne({ _id: id, status: true }).exec((error, data) => {
             if (error) {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
@@ -314,6 +318,9 @@ router.route('/deleteComment').put((req, res) => {
                 if (validate.isEmpty(data)) {
                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                 } else {
+                    console.log(data);
+                    console.log('lul');
+
                     Topic.findOneAndUpdate(
                         {
                             _id: id,
@@ -323,7 +330,10 @@ router.route('/deleteComment').put((req, res) => {
                         {
                             $pull:
                             {
-                                'comments.$._id': commentId,
+                                comments: {
+                                    _id: new ObjectId(commentId)
+                                }
+                                // 'comments.$._id': commentId,
                                 // 'comments.$.updateAt': updateAt,
                                 // 'comments.$.status': false
                             }
@@ -332,6 +342,7 @@ router.route('/deleteComment').put((req, res) => {
                             upsert: true
                         },
                         (error, data) => {
+                            console.log(data);
                             if (error) return res.status(500).send(msgRep.msgData(false, msg_failed));
                             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
                         });
@@ -339,6 +350,7 @@ router.route('/deleteComment').put((req, res) => {
             }
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
@@ -411,7 +423,7 @@ router.route('/follow').post((req, res) => {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
             } else {
                 if (validate.isEmpty(data)) {
-                     Account.findOneAndUpdate(
+                    Account.findOneAndUpdate(
                         {
                             _id: id,
                             status: true
@@ -428,9 +440,53 @@ router.route('/follow').post((req, res) => {
                         (error, data) => {
                             if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-                        });     
+                        });
                 } else {
-                   return res.status(200).send(msgRep.msgData(false, msg.msg_DUPLICATED));
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_DUPLICATED));
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+    }
+});
+
+//PUT
+router.route('/deleteFollow').put((req, res) => {
+    try {
+        var id = req.body.id;
+        var followId = req.body.followId;
+
+        Account.findOne({
+            _id: id,
+            status: true
+        }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed, error));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    Account.findOneAndUpdate(
+                        {
+                            _id: id,
+                            status: true
+                        },
+                        {
+                            $pull:
+                            {
+                                follow: {
+                                    _id: new ObjectId(followId)
+                                }
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error, data) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        });
                 }
             }
         });
