@@ -262,7 +262,7 @@ router.route('/update').put((req, res) => {
             status: false,
             message: 'Validate failed'
         })
-    }
+    };
 
     Account.findOne({ _id: id, status: true }).exec((err, acc) => {
         if (!err) {
@@ -535,42 +535,6 @@ router.route('/forgotPassword').post((req, res) => {
                 }
             }
         });
-
-        // mailService.resetPassword(email, newPw, res);
-
-        // let newPw = req.body.newPw;
-
-        // Account.findOne({ _id: id }).exec((error, data) => {
-        //     if (error) {
-        //         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-        //     } else {
-        //         if (validate.isEmpty(data)) {
-        //             return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
-        //         } else {
-        //             if (data.password == pw) {
-        //                 Account.findOneAndUpdate(
-        //                     {
-        //                         _id: id
-        //                     },
-        //                     {
-        //                         $set: {
-        //                             password: hash(newPw)
-        //                         }
-        //                     },
-        //                     {
-        //                         upsert: true
-        //                     },
-        //                     (error) => {
-        //                         if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-        //                         return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-        //                     }
-        //                 )
-        //             } else {
-        //                 return res.status(200).send(msgRep.msgData(false, 'PASSWORD_NOT_MATCH'));
-        //             }
-        //         }
-        //     }
-        // })
     } catch (error) {
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
