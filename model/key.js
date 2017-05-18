@@ -5,6 +5,7 @@ var ObjectId = Schema.ObjectId;
 
 var KeySchema = new Schema({
     key: { type: String },
+    email: { type: String },
     createAt: { type: Date },
     updateAt: { type: Date },
     status: { type: Boolean }

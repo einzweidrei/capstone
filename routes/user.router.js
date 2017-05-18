@@ -461,14 +461,12 @@ router.route('/sendPassword').post((req, res) => {
                                         },
                                         (error) => {
                                             if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-
-                                            console.log('success');
                                             mailService.resetPassword(account.info.email, newPw, res);
                                         }
                                     )
                                 }
                             }
-                        )
+                        );
                     } else {
                         return res.status(200).send(msgRep.msgData(false, "OUT_OF_DATE"));
                     }
@@ -494,17 +492,45 @@ router.route('/forgotPassword').post((req, res) => {
                     let stringKey = randomstring.generate(30);
                     let id = data._id + '-' + stringKey;
 
-                    let key = new Key();
-                    key.key = stringKey;
-                    key.createAt = new Date();
-                    key.updateAt = new Date();
-                    key.status = true;
+                    Key.findOne({ email: email, status: true }).exec((error, k) => {
+                        if (error) {
+                            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                        } else {
+                            if (validate.isEmpty(k)) {
+                                let key = new Key();
+                                key.key = stringKey;
+                                key.email = email;
+                                key.createAt = new Date();
+                                key.updateAt = new Date();
+                                key.status = true;
 
-                    console.log(key)
-
-                    key.save((error) => {
-                        if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                        mailService.confirmResetPassword(id, email, res);
+                                key.save((error) => {
+                                    if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                    mailService.confirmResetPassword(id, email, res);
+                                });
+                            } else {
+                                Key.findOneAndUpdate(
+                                    {
+                                        email: email,
+                                        status: true
+                                    },
+                                    {
+                                        $set: {
+                                            key: stringKey,
+                                            createAt: new Date(),
+                                            updateAt: new Date()
+                                        }
+                                    },
+                                    {
+                                        upsert: true
+                                    },
+                                    (error) => {
+                                        if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                        mailService.confirmResetPassword(id, email, res);
+                                    }
+                                )
+                            }
+                        }
                     });
                 }
             }
