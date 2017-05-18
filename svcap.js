@@ -79,6 +79,7 @@ app.use('/cms', require('./routes/cms.router'));
 app.use('/topic', require('./routes/topic.router'));
 app.use('/contest', require('./routes/contest.router'));
 app.use('/advisory', require('./routes/advisory.router'));
+app.use('/user', require('./routes/user.router'));
 
 // HOST
 // app.listen(6969, function () {
