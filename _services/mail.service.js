@@ -37,6 +37,36 @@ var MailService = (function () {
         }
     };
 
+    MailService.prototype.confirmResetPassword = (id, email, res) => {
+        try {
+            let url = "http://localhost:4200/confirm/" + id;
+
+            // setup email data with unicode symbols
+            let mailOptions = {
+                from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                to: email, // list of receivers
+                subject: 'Confirm to reset your password', // Subject line
+                text: 'Click this link (Effectively within 7 days): ' + url, // plain text body
+                // html: '<b>Test HTML</b>' // html body
+            };
+
+            console.log(url);
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                }
+                // console.log('Message %s sent: %s', info.messageId, info.response);
+                console.log(info);
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+            });
+        } catch (error) {
+            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+        }
+    };
+
+
     MailService.prototype.resetPassword = (email, newPw, res) => {
         try {
             // setup email data with unicode symbols
@@ -44,7 +74,7 @@ var MailService = (function () {
                 from: '"Admin" <YukoTesting01@gmail.com>', // sender address
                 to: email, // list of receivers
                 subject: 'Reset your password', // Subject line
-                text: 'Your new password: ' + newPw, // plain text body
+                text: 'Your new password is: ' + newPw, // plain text body
                 // html: '<b>Test HTML</b>' // html body
             };
 

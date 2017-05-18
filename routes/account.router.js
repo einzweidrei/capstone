@@ -130,6 +130,8 @@ router.route('/cms/auth').post((req, res) => {
 	}
 });
 
+// router.route('/cms/re')
+
 //POST -- Authentication
 router.route('/login').post((req, res) => {
 	try {

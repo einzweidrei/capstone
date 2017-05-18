@@ -1,5 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
+var randomstring = require("randomstring");
 var router = express.Router();
 
 var validationService = require('../_services/validation.service');
@@ -9,6 +10,9 @@ var msg = messageService.Message;
 var msgRep = new messageService.Message();
 var timeService = require('../_services/time.service');
 var time = new timeService.Time();
+
+var mail = require('../_services/mail.service');
+var mailService = new mail.MailService();
 
 var nodemailer = require('nodemailer');
 
@@ -21,6 +25,7 @@ var Connect = require('../model/connect');
 var Student = require('../model/student');
 var Class = require('../model/class');
 var Course = require('../model/course');
+var Key = require('../model/key');
 
 router.use(function (req, res, next) {
     console.log('router_account is connecting');
@@ -359,6 +364,169 @@ router.route('/update').put((req, res) => {
             });
         }
     });
+});
+
+router.route('/resetPassword').post((req, res) => {
+    try {
+        let id = req.body.id;
+        let oldPw = req.body.oldPw;
+        let newPw = req.body.newPw;
+
+        let pw = hash(oldPw);
+
+        Account.findOne({ _id: id }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    if (data.password == pw) {
+                        Account.findOneAndUpdate(
+                            {
+                                _id: id
+                            },
+                            {
+                                $set: {
+                                    password: hash(newPw)
+                                }
+                            },
+                            {
+                                upsert: true
+                            },
+                            (error) => {
+                                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                            }
+                        )
+                    } else {
+                        return res.status(200).send(msgRep.msgData(false, 'PASSWORD_NOT_MATCH'));
+                    }
+                }
+            }
+        })
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/sendPassword').post((req, res) => {
+    try {
+        let id = req.body.id;
+        let stringKey = req.body.key;
+
+        let date = new Date();
+
+        let newPw = randomstring.generate(7);
+        let pw = hash(newPw);
+
+        Key.findOne({ key: stringKey, status: true }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    let d = new Date();
+                    d.setDate(date.getDate() - data.createAt.getDate());
+                    if (d.getDate() <= 7) {
+                        Account.findOneAndUpdate(
+                            {
+                                _id: id,
+                                status: true
+                            },
+                            {
+                                $set: {
+                                    password: pw
+                                }
+                            },
+                            {
+                                upsert: true
+                            },
+                            (error, account) => {
+                                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                mailService.resetPassword(account.info.email, newPw, res);
+                            }
+                        )
+                    } else {
+                        return res.status(200).send(msgRep.msgData(false, "OUT_OF_DATE"));
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
+router.route('/forgotPassword').post((req, res) => {
+    try {
+        let email = req.body.email;
+
+        Account.findOne({ 'info.email': email, status: true }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    let stringKey = randomstring.generate(30);
+                    let id = data._id + '-' + stringKey;
+
+                    let key = new Key();
+                    key.key = stringKey;
+                    key.createAt = new Date();
+                    key.updateAt = new Date();
+                    key.status = true;
+
+                    console.log(key)
+
+                    key.save((error) => {
+                        if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                        mailService.confirmResetPassword(id, email, res);
+                    });
+                }
+            }
+        });
+
+        // mailService.resetPassword(email, newPw, res);
+
+        // let newPw = req.body.newPw;
+
+        // Account.findOne({ _id: id }).exec((error, data) => {
+        //     if (error) {
+        //         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+        //     } else {
+        //         if (validate.isEmpty(data)) {
+        //             return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+        //         } else {
+        //             if (data.password == pw) {
+        //                 Account.findOneAndUpdate(
+        //                     {
+        //                         _id: id
+        //                     },
+        //                     {
+        //                         $set: {
+        //                             password: hash(newPw)
+        //                         }
+        //                     },
+        //                     {
+        //                         upsert: true
+        //                     },
+        //                     (error) => {
+        //                         if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+        //                         return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+        //                     }
+        //                 )
+        //             } else {
+        //                 return res.status(200).send(msgRep.msgData(false, 'PASSWORD_NOT_MATCH'));
+        //             }
+        //         }
+        //     }
+        // })
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
 });
 
 router.route('/getConnectAccount').get((req, res) => {
