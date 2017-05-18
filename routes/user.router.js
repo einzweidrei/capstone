@@ -444,8 +444,29 @@ router.route('/sendPassword').post((req, res) => {
                                 upsert: true
                             },
                             (error, account) => {
-                                if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                mailService.resetPassword(account.info.email, newPw, res);
+                                if (error) {
+                                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                } else {
+                                    Key.findOneAndUpdate(
+                                        {
+                                            _id: data._id
+                                        },
+                                        {
+                                            $set: {
+                                                status: false
+                                            }
+                                        },
+                                        {
+                                            upsert: true
+                                        },
+                                        (error) => {
+                                            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+
+                                            console.log('success');
+                                            mailService.resetPassword(account.info.email, newPw, res);
+                                        }
+                                    )
+                                }
                             }
                         )
                     } else {
