@@ -427,9 +427,11 @@ router.route('/sendPassword').post((req, res) => {
                 if (validate.isEmpty(data)) {
                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                 } else {
-                    let d = new Date();
-                    d.setDate(date.getDate() - data.createAt.getDate());
-                    if (d.getDate() <= 7) {
+                    // let d = new Date();
+                    let d = date.getDate() - data.createAt.getDate();
+
+                    console.log(d);
+                    if (d <= 7) {
                         Account.findOneAndUpdate(
                             {
                                 _id: id,

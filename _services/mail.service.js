@@ -83,7 +83,7 @@ var MailService = (function () {
                 if (error) {
                     return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                 }
-                // console.log('Message %s sent: %s', info.messageId, info.response);
+                console.log('Message %s sent: %s', info.messageId, info.response);
                 return res.status(200).send(msgRep.msgData(true, msg.msg_success));
             });
         } catch (error) {
