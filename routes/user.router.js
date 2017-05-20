@@ -577,7 +577,7 @@ router.route('/getConnectAccount').get((req, res) => {
                                 if (validate.isEmpty(result)) {
                                     return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
                                 } else {
-                                    Class.populate(result, { path: 'student.classes.class', select: 'info.progress info.startAt info.course' }, (error, das) => {
+                                    Class.populate(result, { path: 'student.classes.class', select: 'info.name info.progress info.startAt info.course' }, (error, das) => {
                                         if (error) {
                                             return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                                         } else {
@@ -633,6 +633,7 @@ router.route('/getClassInfo').get((req, res) => {
                 }
             ],
             (error, data) => {
+                console.log(data);
                 if (error) {
                     return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
                 } else {
