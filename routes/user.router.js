@@ -26,6 +26,7 @@ var Student = require('../model/student');
 var Class = require('../model/class');
 var Course = require('../model/course');
 var Key = require('../model/key');
+var AuthKey = require('../model/auth_key');
 
 router.use(function (req, res, next) {
     console.log('router_account is connecting');
@@ -141,8 +142,8 @@ router.route('/register').post((req, res) => {
     //get data in request body
     account.username = req.body.username;
     account.password = hash(req.body.password);
-    account.info.email = req.body.email;
-    account.info.name = req.body.name;
+    account.info.email = req.body.email || "";
+    account.info.name = req.body.name || "";
     account.role = req.body.role;
     account.status = true;
     account.token = null;
@@ -182,77 +183,67 @@ router.route('/register').post((req, res) => {
 
         //valid [password]
         else {
-            //check valid [role]
-            Role.findOne({ _id: account.role }).exec((err, roles) => {
-                if (!err) {
+            //check duplicate [email]
+            Account.findOne({ 'info.email': account.info.email }).exec((err, acc) => {
 
-                    //valid [role]
-                    if (roles !== null) {
-
-                        //check duplicate [username]
-                        Account.findOne({ username: account.username })
-                            .exec((err, accounts) => {
-
-                                if (!err) {
-
-                                    //duplicate [username]
-                                    if (accounts !== null) {
-                                        return res.json({
-                                            status: false,
-                                            message: msg.msg_username_exist
-                                        });
-                                    }
-
-                                    //non-duplicate [username]
-                                    else {
-
-                                        //check duplicate [email]
-                                        Account.findOne({ 'info.email': account.info.email }).exec((err, acc) => {
-
-                                            //duplicate [email]
-                                            if (acc !== null) {
-                                                return res.json({
-                                                    status: false,
-                                                    message: msg.msg_email_exist
-                                                });
-                                            }
-
-                                            //non-duplicate [email]
-                                            else {
-                                                account.save((err) => {
-                                                    if (err) return res.send(err);
-                                                    return res.json({
-                                                        status: true,
-                                                        account: account,
-                                                        message: msg.msg_success
-                                                    });
-                                                });
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    return res.json({
-                                        status: false,
-                                        message: msg.msg_failed
-                                    })
-                                }
-                            });
-                    }
-
-                    //invalid [role]
-                    else {
-                        return res.json({
-                            status: false,
-                            message: msg.msg_role_invalid
-                        });
-                    }
-                } else {
+                //duplicate [email]
+                if (acc !== null) {
                     return res.json({
                         status: false,
-                        message: msg.msg_failed
-                    })
+                        message: msg.msg_email_exist
+                    });
                 }
-            })
+
+                //non-duplicate [email]
+                else {
+                    account.save((err, data) => {
+                        if (err) return res.send(err);
+                        else {
+                            console.log('Auth_KEY');
+                            console.log(data);
+
+                            let authKey = new AuthKey();
+                            authKey.userId = data._id;
+                            authKey.access_token = getToken();
+                            authKey.isActivated = false;
+                            authKey.createAt = new Date();
+                            authKey.status = true;
+
+                            authKey.save((error) => {
+                                if (error) {
+                                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                } else {
+                                    let stringKey = randomstring.generate(30);
+                                    let id = data._id + '-' + stringKey;
+                                    let url = "http://localhost:4200/authConfirm/" + id;
+
+                                    let mailOptions = {
+                                        from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                                        to: account.info.email, // list of receivers
+                                        subject: 'Confirm Account', // Subject line
+                                        text: 'Confirm your account: ' + url, // plain text body
+                                        // html: '<b>Test HTML</b>' // html body
+                                    };
+
+                                    // send mail with defined transport object
+                                    transporter.sendMail(mailOptions, (error, info) => {
+                                        if (error) {
+                                            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                        }
+                                        console.log('Message %s sent: %s', info.messageId, info.response);
+                                        // return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                                        return res.status(200).json({
+                                            status: true,
+                                            account: account,
+                                            message: msg.msg_success
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         }
     }
 });
