@@ -183,65 +183,84 @@ router.route('/register').post((req, res) => {
 
         //valid [password]
         else {
-            //check duplicate [email]
-            Account.findOne({ 'info.email': account.info.email }).exec((err, acc) => {
+            Role.findOne({ _id: req.body.role, status: true }).exec((error, role) => {
+                if (error) {
+                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                } else {
+                    if (validate.isEmpty(role)) {
+                        return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                    } else {
+                        account.roleTest = role;
 
-                //duplicate [email]
-                if (acc !== null) {
-                    return res.json({
-                        status: false,
-                        message: msg.msg_email_exist
-                    });
-                }
+                        //check duplicate [email]
+                        Account.findOne({ 'info.email': account.info.email }).exec((err, acc) => {
 
-                //non-duplicate [email]
-                else {
-                    account.save((err, data) => {
-                        if (err) return res.send(err);
-                        else {
-                            console.log('Auth_KEY');
-                            console.log(data);
+                            //duplicate [email]
+                            if (acc !== null) {
+                                return res.json({
+                                    status: false,
+                                    message: msg.msg_email_exist
+                                });
+                            }
 
-                            let authKey = new AuthKey();
-                            authKey.userId = data._id;
-                            authKey.access_token = getToken();
-                            authKey.isActivated = false;
-                            authKey.createAt = new Date();
-                            authKey.status = true;
+                            //non-duplicate [email]
+                            else {
+                                account.save((err, data) => {
+                                    if (err) return res.send(err);
+                                    else {
+                                        console.log('Auth_KEY');
+                                        console.log(data);
 
-                            authKey.save((error) => {
-                                if (error) {
-                                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                } else {
-                                    let stringKey = randomstring.generate(30);
-                                    let id = data._id + '-' + stringKey;
-                                    let url = "http://localhost:4200/authConfirm/" + id;
+                                        let stringKey = randomstring.generate(30);
+                                        let urlKey = data._id + '-' + stringKey;
 
-                                    let mailOptions = {
-                                        from: '"Admin" <YukoTesting01@gmail.com>', // sender address
-                                        to: account.info.email, // list of receivers
-                                        subject: 'Confirm Account', // Subject line
-                                        text: 'Confirm your account: ' + url, // plain text body
-                                        // html: '<b>Test HTML</b>' // html body
-                                    };
+                                        let authKey = new AuthKey();
+                                        authKey.userId = data._id;
+                                        authKey.access_token = getToken();
+                                        authKey.key = stringKey;
+                                        authKey.isActivated = false;
+                                        authKey.createAt = new Date();
+                                        authKey.status = true;
 
-                                    // send mail with defined transport object
-                                    transporter.sendMail(mailOptions, (error, info) => {
-                                        if (error) {
-                                            return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                        }
-                                        console.log('Message %s sent: %s', info.messageId, info.response);
-                                        // return res.status(200).send(msgRep.msgData(true, msg.msg_success));
-                                        return res.status(200).json({
-                                            status: true,
-                                            account: account,
-                                            message: msg.msg_success
+                                        authKey.save((error) => {
+                                            if (error) {
+                                                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                            } else {
+                                                let url = "http://localhost:4200/authConfirm/" + urlKey;
+
+                                                let mailOptions = {
+                                                    from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                                                    to: account.info.email, // list of receivers
+                                                    subject: 'Confirm Account', // Subject line
+                                                    text: 'Confirm your account: ' + url, // plain text body
+                                                    // html: '<b>Test HTML</b>' // html body
+                                                };
+
+                                                // send mail with defined transport object
+                                                transporter.sendMail(mailOptions, (error, info) => {
+                                                    if (error) {
+                                                        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                                    }
+                                                    console.log('Message %s sent: %s', info.messageId, info.response);
+                                                    // return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                                                    return res.status(200).json({
+                                                        status: true,
+                                                        account: {
+                                                            username: account.username,
+                                                            info: account.info,
+                                                            role: account.role,
+                                                            roleTest: account.roleTest
+                                                        },
+                                                        message: msg.msg_success
+                                                    });
+                                                });
+                                            }
                                         });
-                                    });
-                                }
-                            });
-                        }
-                    });
+                                    }
+                                });
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -363,6 +382,45 @@ router.route('/update').put((req, res) => {
             });
         }
     });
+});
+
+router.route('/confirmAccount').post((req, res) => {
+    try {
+        let userId = req.query.id;
+        let key = req.query.key;
+
+        AuthKey.findOne({ userId: userId, key: key, isActivated: false }).exec((error, data) => {
+            if (error) {
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            } else {
+                if (validate.isEmpty(data)) {
+                    return res.status(200).send(msgRep.msgData(false, msg.msg_data_not_exist));
+                } else {
+                    AuthKey.findOneAndUpdate(
+                        {
+                            userId: userId,
+                            key: key,
+                            isActivated: false
+                        },
+                        {
+                            $set: {
+                                isActivated: true
+                            }
+                        },
+                        {
+                            upsert: true
+                        },
+                        (error) => {
+                            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                        }
+                    )
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
 });
 
 router.route('/resetPassword').post((req, res) => {

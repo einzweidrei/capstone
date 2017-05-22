@@ -5,6 +5,7 @@ var ObjectId = Schema.ObjectId;
 
 var AuthKey = new Schema({
     userId: { type: ObjectId },
+    key: { type: String },
     access_token: { type: String },
     isActivated: { type: Boolean },
     createAt: { type: Date },
