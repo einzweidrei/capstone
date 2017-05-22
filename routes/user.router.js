@@ -49,6 +49,14 @@ function getToken() {
     return token;
 }
 
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'YukoTesting01@gmail.com',
+        pass: '789632145'
+    }
+});
+
 //POST -- Authentication
 router.route('/login').post((req, res) => {
     try {
@@ -463,7 +471,23 @@ router.route('/sendPassword').post((req, res) => {
                                         },
                                         (error) => {
                                             if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                            mailService.resetPassword(account.info.email, newPw, res);
+                                            let mailOptions = {
+                                                from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                                                to: account.info.email, // list of receivers
+                                                subject: 'Reset your password', // Subject line
+                                                text: 'Your new password is: ' + newPw, // plain text body
+                                                // html: '<b>Test HTML</b>' // html body
+                                            };
+
+                                            // send mail with defined transport object
+                                            transporter.sendMail(mailOptions, (error, info) => {
+                                                if (error) {
+                                                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                                }
+                                                console.log('Message %s sent: %s', info.messageId, info.response);
+                                                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                                            });
+                                            // mailService.resetPassword(account.info.email, newPw, res);
                                         }
                                     )
                                 }
@@ -494,6 +518,8 @@ router.route('/forgotPassword').post((req, res) => {
                     let stringKey = randomstring.generate(30);
                     let id = data._id + '-' + stringKey;
 
+                    console.log(data);
+
                     Key.findOne({ email: email, status: true }).exec((error, k) => {
                         if (error) {
                             return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
@@ -508,7 +534,31 @@ router.route('/forgotPassword').post((req, res) => {
 
                                 key.save((error) => {
                                     if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                    mailService.confirmResetPassword(id, email, res);
+                                    else {
+                                        console.log('else');
+
+                                        let url = "http://localhost:4200/confirm/" + id;
+
+                                        // setup email data with unicode symbols
+                                        let mailOptions = {
+                                            from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                                            to: email, // list of receivers
+                                            subject: 'Confirm to reset your password', // Subject line
+                                            text: 'Click this link (Effectively within 7 days): ' + url, // plain text body
+                                            // html: '<b>Test HTML</b>' // html body
+                                        };
+
+                                        // send mail with defined transport object
+                                        transporter.sendMail(mailOptions, (error, info) => {
+                                            if (error) {
+                                                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                            }
+                                            // console.log('Message %s sent: %s', info.messageId, info.response);
+                                            console.log(info);
+                                            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                                        });
+                                    }
+                                    // mailService.confirmResetPassword(id, email, res);
                                 });
                             } else {
                                 Key.findOneAndUpdate(
@@ -528,7 +578,31 @@ router.route('/forgotPassword').post((req, res) => {
                                     },
                                     (error) => {
                                         if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
-                                        mailService.confirmResetPassword(id, email, res);
+                                        else {
+                                            console.log('else');
+
+                                            let url = "http://localhost:4200/confirm/" + id;
+
+                                            // setup email data with unicode symbols
+                                            let mailOptions = {
+                                                from: '"Admin" <YukoTesting01@gmail.com>', // sender address
+                                                to: email, // list of receivers
+                                                subject: 'Confirm to reset your password', // Subject line
+                                                text: 'Click this link (Effectively within 7 days): ' + url, // plain text body
+                                                // html: '<b>Test HTML</b>' // html body
+                                            };
+
+                                            // send mail with defined transport object
+                                            transporter.sendMail(mailOptions, (error, info) => {
+                                                if (error) {
+                                                    return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+                                                }
+                                                // console.log('Message %s sent: %s', info.messageId, info.response);
+                                                console.log(info);
+                                                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+                                            });
+                                        }
+                                        // mailService.confirmResetPassword(id, email, res);
                                     }
                                 )
                             }
