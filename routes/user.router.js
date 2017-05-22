@@ -386,8 +386,8 @@ router.route('/update').put((req, res) => {
 
 router.route('/confirmAccount').post((req, res) => {
     try {
-        let userId = req.query.id;
-        let key = req.query.key;
+        let userId = req.body.id;
+        let key = req.body.key;
 
         AuthKey.findOne({ userId: userId, key: key, isActivated: false }).exec((error, data) => {
             if (error) {
