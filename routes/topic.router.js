@@ -31,6 +31,7 @@ router.route('/getAll').get((req, res) => {
         var type = req.query.type;
         var priority = req.query.priority;
         var author = req.query.author;
+        var process = req.query.process;
         var timeStart = req.query.timeStart || new Date();
         var timeEnd = req.query.timeEnd || new Date();
 
@@ -39,6 +40,7 @@ router.route('/getAll').get((req, res) => {
         if (type) query['info.type'] = type;
         if (priority) query['info.priority'] = priority;
         if (author) query['info.author'] = author;
+        if (process) query['process'] = process;
         // if (timeStart || timeEnd) {
         //     var start = time.parseTimetoObject(timeStart);
         //     var end = time.parseTimetoObject(timeEnd);
