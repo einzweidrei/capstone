@@ -91,34 +91,67 @@ router.route('/login').post((req, res) => {
                         //check valid [password] 
                         //valid
                         if (password == account.password) {
+                            let token = getToken();
 
-                            Account.findOneAndUpdate(
+                            AuthKey.findOneAndUpdate(
                                 {
-                                    _id: account._id
+                                    userId: account._id
                                 },
                                 {
-                                    $set:
-                                    {
-                                        'session.loginAt': loginAt,
-                                        token: getToken()
+                                    $set: {
+                                        access_token: token
                                     }
                                 },
                                 {
                                     upsert: true
                                 },
-                                (err, data) => {
-                                    if (!err) {
-                                        Account.findOne({ _id: account._id }).exec((err, user) => {
-                                            if (!err) {
-                                                return res.send(msgRep.msgData(true, msg.msg_success, user));
-                                            } else {
-                                                return res.send(msgRep.msgFailedOut(false, err));
-                                            }
-                                        })
-                                    } else {
+                                (error) => {
+                                    if (error) {
                                         return res.send(msgRep.msgFailedOut(false, err));
+                                    } else {
+                                        return res.json({
+                                            status: true,
+                                            message: msg.msg_success,
+                                            data: {
+                                                _id: account._id,
+                                                info: account.info,
+                                                role: account.role,
+                                                roleTest: account.roleTest,
+                                                token: token,
+                                                username: account.username
+                                            }
+                                        });
                                     }
-                                });
+                                }
+                            );
+
+                            // Account.findOneAndUpdate(
+                            //     {
+                            //         _id: account._id
+                            //     },
+                            //     {
+                            //         $set:
+                            //         {
+                            //             'session.loginAt': loginAt,
+                            //             token: getToken()
+                            //         }
+                            //     },
+                            //     {
+                            //         upsert: true
+                            //     },
+                            //     (err, data) => {
+                            //         if (!err) {
+                            //             Account.findOne({ _id: account._id }).exec((err, user) => {
+                            //                 if (!err) {
+                            //                     return res.send(msgRep.msgData(true, msg.msg_success, user));
+                            //                 } else {
+                            //                     return res.send(msgRep.msgFailedOut(false, err));
+                            //                 }
+                            //             })
+                            //         } else {
+                            //             return res.send(msgRep.msgFailedOut(false, err));
+                            //         }
+                            //     });
                         }
 
                         //invalid

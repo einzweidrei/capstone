@@ -3,6 +3,8 @@ var router = express.Router();
 
 var CMS = require('../model/cms');
 var Student = require('../model/student');
+var AuthKey = require('../model/auth_key');
+
 var validationService = require('../_services/validation.service');
 var messageService = require('../_services/message.service');
 var timeService = require('../_services/time.service');
@@ -13,7 +15,18 @@ var msgRep = new messageService.Message();
 
 router.use(function (req, res, next) {
     console.log('cms_router is connecting');
-    next();
+    console.log(req.headers);
+    // if (req.headers)
+    // console.log(req.query);
+    // console.log(req.body);
+
+    // console.log('1');   
+    if (req.headers.authorization) {
+        next();
+    } else {
+        return res.status(401).send(msgRep.msgData(false, 'AUTHORIZATION_FAILED'));
+    }
+    // next();
 });
 
 function checkIsValid(item) {

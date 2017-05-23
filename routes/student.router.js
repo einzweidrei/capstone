@@ -275,4 +275,17 @@ router.route('/getConnectAccount').get((req, res) => {
     }
 });
 
+router.route('/disconnectAccount').post((req, res) => {
+    try {
+        let id = req.body.id;
+
+        Connect.findOneAndRemove({ _id: id }).exec((error) => {
+            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            return res.status(200).send(msgRep.msgData(true, msg.msg_success));
+        });
+    } catch (error) {
+        return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+    }
+});
+
 module.exports = router;

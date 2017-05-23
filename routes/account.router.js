@@ -15,6 +15,7 @@ var nodemailer = require('nodemailer');
 // create Account object
 var Account = require('../model/account');
 var Role = require('../model/role');
+var AuthKey = require('../model/auth_key');
 
 router.use(function (req, res, next) {
 	console.log('router_account is connecting');
@@ -43,7 +44,7 @@ function getToken() {
 //POST -- Authentication
 router.route('/cms/auth').post((req, res) => {
 	try {
-		console.log(req.body);
+		console.log('auth');
 
 		//get data in request body
 		var username = req.body.username;
@@ -72,41 +73,76 @@ router.route('/cms/auth').post((req, res) => {
 							})
 						}
 
-						console.log(account);
 						//check [role]
 						if (account.roleTest.backend === true) {
 
 							//check valid [password] 
 							//valid
 							if (password == account.password) {
+								let token = getToken();
 
-								Account.findOneAndUpdate(
+								console.log(account._id);
+
+								AuthKey.findOneAndUpdate(
 									{
-										_id: account._id
+										userId: account._id
 									},
 									{
-										$set:
-										{
-											'session.loginAt': loginAt,
-											token: getToken()
+										$set: {
+											access_token: token
 										}
 									},
 									{
 										upsert: true
 									},
-									(err, data) => {
-										if (!err) {
-											Account.findOne({ _id: account._id }).select('_id username role roleTest token info').exec((err, user) => {
-												if (!err) {
-													return res.send(msgRep.msgData(true, msg.msg_success, user));
-												} else {
-													return res.send(msgRep.msgFailedOut(false, err));
-												}
-											})
-										} else {
+									(error) => {
+										if (error) {
+											console.log(error);
 											return res.send(msgRep.msgFailedOut(false, err));
+										} else {
+											return res.json({
+												status: true,
+												message: msg.msg_success,
+												data: {
+													_id: account._id,
+													info: account.info,
+													role: account.role,
+													roleTest: account.roleTest,
+													token: token,
+													username: account.username
+												}
+											});
 										}
-									});
+									}
+								);
+
+								// Account.findOneAndUpdate(
+								// 	{
+								// 		_id: account._id
+								// 	},
+								// 	{
+								// 		$set:
+								// 		{
+								// 			'session.loginAt': loginAt,
+								// 			token: getToken()
+								// 		}
+								// 	},
+								// 	{
+								// 		upsert: true
+								// 	},
+								// 	(err, data) => {
+								// 		if (!err) {
+								// 			Account.findOne({ _id: account._id }).select('_id username role roleTest token info').exec((err, user) => {
+								// 				if (!err) {
+								// 					return res.send(msgRep.msgData(true, msg.msg_success, user));
+								// 				} else {
+								// 					return res.send(msgRep.msgFailedOut(false, err));
+								// 				}
+								// 			})
+								// 		} else {
+								// 			return res.send(msgRep.msgFailedOut(false, err));
+								// 		}
+								// 	});
 							}
 
 							//invalid
@@ -165,6 +201,31 @@ router.route('/login').post((req, res) => {
 						//check valid [password] 
 						//valid
 						if (password == account.password) {
+							// let token = getToken();
+
+							// AuthKey.findOne(
+							// 	{
+							// 		userId: account._id
+							// 	},
+							// 	{
+							// 		$set: {
+							// 			access_token: token
+							// 		}
+							// 	},
+							// 	{
+							// 		upsert: true
+							// 	},
+							// 	(error) => {
+							// 		if (error) {
+
+							// 		} else {
+							// 			return res.json({
+							// 				status: true,
+							// 				message: msg.msg_success,
+							// 												});
+							// 		}
+							// 	}
+							// )
 
 							Account.findOneAndUpdate(
 								{
@@ -294,13 +355,31 @@ router.route('/register').post((req, res) => {
 
 											//non-duplicate [email]
 											else {
-												account.save((err) => {
+												account.save((err, account) => {
 													if (err) return res.send(err);
-													return res.json({
-														status: true,
-														account: account,
-														message: msg.msg_success
-													});
+													else {
+														let authKey = new AuthKey();
+														authKey.userId = account._id;
+														authKey.key = '';
+														authKey.access_token = '';
+														authKey.isActivated = true;
+														authKey.createAt = new Date();
+														authKey.status = true;
+
+														authKey.save((error) => {
+															if (error) {
+																return res.json({
+																	status: false,
+																	message: msg.msg_username_exist
+																});
+															} else {
+																return res.json({
+																	status: true,
+																	message: msg.msg_success
+																});
+															}
+														});
+													}
 												});
 											}
 										});
@@ -426,11 +505,29 @@ router.route('/cms/create').post((req, res) => {
 
 												account.save((err) => {
 													if (err) return res.send(err);
-													return res.json({
-														status: true,
-														account: account,
-														message: msg.msg_success
-													});
+													else {
+														let authKey = new AuthKey();
+														authKey.userId = account._id;
+														authKey.key = '';
+														authKey.access_token = '';
+														authKey.isActivated = true;
+														authKey.createAt = new Date();
+														authKey.status = true;
+
+														authKey.save((error) => {
+															if (error) {
+																return res.json({
+																	status: false,
+																	message: msg.msg_username_exist
+																});
+															} else {
+																return res.json({
+																	status: true,
+																	message: msg.msg_success
+																});
+															}
+														});
+													}
 												});
 											}
 										});
