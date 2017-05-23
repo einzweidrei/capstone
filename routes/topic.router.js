@@ -193,6 +193,7 @@ router.route('/update').put((req, res) => {
                     'info.title': title,
                     'info.type': type,
                     'info.priority': priority,
+                    process: process,
                     updateAt: updateAt
                 }
             },
