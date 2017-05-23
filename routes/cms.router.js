@@ -21,12 +21,12 @@ router.use(function (req, res, next) {
     // console.log(req.body);
 
     // console.log('1');   
-    if (req.headers.authorization) {
-        next();
-    } else {
-        return res.status(401).send(msgRep.msgData(false, 'AUTHORIZATION_FAILED'));
-    }
-    // next();
+    // if (req.headers.authorization) {
+    //     next();
+    // } else {
+    //     return res.status(401).send(msgRep.msgData(false, 'AUTHORIZATION_FAILED'));
+    // }
+    next();
 });
 
 function checkIsValid(item) {
