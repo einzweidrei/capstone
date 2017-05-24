@@ -103,7 +103,8 @@ router.route('/create').post((req, res) => {
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             }
             else {
-                mailService.sendMail(contest.info.email, res);
+//                 mailService.sendMail(contest.info.email, res);
+                return res.status(200).send(msgRep.msgData(true, msg.msg_success));
             }
             // return res.status(200).send(msgRep.msgData(true, msg.msg_success));
         });
