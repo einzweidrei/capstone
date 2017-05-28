@@ -31,11 +31,13 @@ var StaffSchema = new Schema({
     // ],
     attendances: [
         {
+            note: { type: String },
             date: {
                 year: { type: Number },
                 month: { type: Number },
                 day: { type: Number },
-            }
+            },
+            status: { type: Boolean }
         }
     ],
     createAt: {

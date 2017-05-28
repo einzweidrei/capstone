@@ -14,6 +14,8 @@ var validate = new validationService.Validation();
 var msg = messageService.Message;
 var msgRep = new messageService.Message();
 
+var ObjectId = require('mongoose').Types.ObjectId;
+
 router.use(function (req, res, next) {
     console.log('class_router is connecting');
     next();
@@ -240,7 +242,7 @@ router.route('/deleteAttendance').put((req, res) => {
             {
                 $pull: {
                     attendances: {
-                        _id: ObjectId(attendanceId)
+                        _id: new ObjectId(attendanceId)
                     }
                 }
             },
@@ -253,6 +255,7 @@ router.route('/deleteAttendance').put((req, res) => {
             }
         )
     } catch (error) {
+        console.log(error);
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });

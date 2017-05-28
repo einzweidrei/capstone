@@ -160,7 +160,7 @@ router.route('/update').put((req, res) => {
 router.route('/delete').put((req, res) => {
     try {
         var id = req.body.id;
-        course.updateAt = time.getCurrentTime();
+        // course.updateAt = time.getCurrentTime();
 
         Course.findOneAndUpdate(
             {

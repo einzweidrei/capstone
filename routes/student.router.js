@@ -198,11 +198,12 @@ router.route('/connectToAccount').post((req, res) => {
 
         console.log(accountId);
 
-        Connect.findOne({ 'connect.student': id }).exec((error, data) => {
+        Connect.findOne({ 'connect.accountId': accountId }).exec((error, data) => {
             if (error) {
                 console.log(error);
                 return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
             } else {
+                console.log(data);
                 if (validate.isEmpty(data)) {
                     connect.connect = {
                         account: accountId,
@@ -256,7 +257,6 @@ router.route('/getAccountByUsername').get((req, res) => {
 router.route('/getConnectAccount').get((req, res) => {
     try {
         let id = req.query.id;
-        console.log(id);
 
         Connect.findOne({ 'connect.student': id, status: true }).populate({ path: 'connect.account', select: 'username info' }).select('connect').exec((error, data) => {
             if (error) {
@@ -280,10 +280,14 @@ router.route('/disconnectAccount').post((req, res) => {
         let id = req.body.id;
 
         Connect.findOneAndRemove({ _id: id }).exec((error) => {
-            if (error) return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            if (error) {
+                console.log(error);
+                return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
+            }
             return res.status(200).send(msgRep.msgData(true, msg.msg_success));
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).send(msgRep.msgData(false, msg.msg_failed));
     }
 });
