@@ -360,6 +360,8 @@ router.route('/updateStudent').put((req, res) => {
                         }
                     }
 
+                    let d = data.info.studentNumber + 1;
+
                     Class.findOneAndUpdate(
                         {
                             _id: classId
@@ -367,6 +369,7 @@ router.route('/updateStudent').put((req, res) => {
                         {
                             $set:
                             {
+                                'info.studentNumber': d,
                                 updateAt: updateAt
                             },
                             $push:
